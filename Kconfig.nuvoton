@@ -1,0 +1,5 @@
+menu "Nuvoton badenlib"
+
+rsource "stdlib/Kconfig"
+
+endmenu

@@ -1,0 +1,4 @@
+
+config NUVOTON_STDLIB
+	bool "Enable Unported StdLib stuffs"
+	default y

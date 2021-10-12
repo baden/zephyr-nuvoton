@@ -1,0 +1,5 @@
+build:
+  cmake-ext: True
+  kconfig: Kconfig.nuvoton
+  depends:
+  - hal_nuvoton

@@ -5,7 +5,7 @@ build:
   kconfig: Kconfig
   # Path to the folder that contains the CMakeLists.txt file to be included by
   # Zephyr build system. The `.` is the root of this repository.
-  cmake: .
+  # cmake: .
   settings:
     # Additional roots for boards and DTS files. Zephyr will use the
     # `<board_root>/boards` for additional boards. The `.` is the root of this
@@ -16,5 +16,3 @@ build:
     # the root of this repository.
     dts_root: .
 
-board_root: .
-dts_root: .

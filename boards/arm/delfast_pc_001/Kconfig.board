@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# Delfast PC-001 board configuration
+#
+# Copyright (c) 2021 BaDen
+# Author: Batrak Denys <baden.i.ua@gmail.com>
+
+config BOARD_DELFAST_PC_001
+	bool "Delfast PC-001 Bike Board"
+	depends on SOC_M487

@@ -1,0 +1,19 @@
+description: NUVOTON NUMICRO FAMILY UART
+
+compatible: "delfast,numicro-uart"
+
+include: uart-controller.yaml
+
+properties:
+    reg:
+      required: true
+
+    tx-pin:
+      type: int
+      description: TX pin
+      required: true
+
+    rx-pin:
+      type: int
+      description: RX pin
+      required: true

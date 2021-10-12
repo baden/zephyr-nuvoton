@@ -1,1 +1,0 @@
-add_subdirectory_ifdef(NUVOTON_STDLIB stdlib)

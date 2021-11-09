@@ -171,6 +171,7 @@ static int uart_numicro_init(const struct device *dev)
 	CLK_SetModuleClock(config->id_clk, CLK_CLKSEL1_UART0SEL_PLL,
 			   CLK_CLKDIV0_UART0(0));
 
+    //  TODO: Set pins!!!!
 	/* Set pinctrl for UART0 RXD and TXD */
 	SYS->GPB_MFPH &= ~(SYS_GPB_MFPH_PB12MFP_Msk | SYS_GPB_MFPH_PB13MFP_Msk);
 	SYS->GPB_MFPH |= (SYS_GPB_MFPH_PB12MFP_UART0_RXD |

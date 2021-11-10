@@ -30,6 +30,9 @@ struct uart_numicro_config {
 	struct uart_device_config devcfg;
 	uint32_t id_rst;
 	uint32_t id_clk;
+	// Not ideal solution
+	uint32_t rx_pin;
+	uint32_t tx_pin;
 };
 
 struct uart_numicro_data {
@@ -158,7 +161,7 @@ static int uart_numicro_init(const struct device *dev)
 	const struct uart_numicro_config *config = DEV_CFG(dev);
 	struct uart_numicro_data *ddata = DRV_DATA(dev);
 
-	LOG_INF("UART device init (%d)", 42);
+	LOG_INF("UART device init (%d, RX-PIN:%d, TX-PIN:%d)", 42, config->rx_pin, config->tx_pin);
 
 	SYS_ResetModule(config->id_rst);
 
@@ -173,9 +176,15 @@ static int uart_numicro_init(const struct device *dev)
 
     //  TODO: Set pins!!!!
 	/* Set pinctrl for UART0 RXD and TXD */
-	SYS->GPB_MFPH &= ~(SYS_GPB_MFPH_PB12MFP_Msk | SYS_GPB_MFPH_PB13MFP_Msk);
-	SYS->GPB_MFPH |= (SYS_GPB_MFPH_PB12MFP_UART0_RXD |
-			  SYS_GPB_MFPH_PB13MFP_UART0_TXD);
+
+	// StartKit
+	// SYS->GPB_MFPH &= ~(SYS_GPB_MFPH_PB12MFP_Msk | SYS_GPB_MFPH_PB13MFP_Msk);
+	// SYS->GPB_MFPH |= (SYS_GPB_MFPH_PB12MFP_UART0_RXD |
+	// 		  SYS_GPB_MFPH_PB13MFP_UART0_TXD);
+
+	// PC-001
+	SYS->GPC_MFPH &= ~(SYS_GPC_MFPH_PC12MFP_Msk | SYS_GPC_MFPH_PC11MFP_Msk);
+	SYS->GPC_MFPH |= (SYS_GPC_MFPH_PC12MFP_UART0_TXD | SYS_GPC_MFPH_PC11MFP_UART0_RXD);
 
 	SYS_LockReg();
 
@@ -202,6 +211,9 @@ static const struct uart_numicro_config uart_numicro_cfg_##index = {	\
 	},								\
 	.id_rst = UART##index##_RST,					\
 	.id_clk = UART##index##_MODULE,					\
+													\
+	.rx_pin = DT_INST_PROP(index, rx_pin),	\
+	.tx_pin = DT_INST_PROP(index, tx_pin),	\
 };									\
 									\
 static struct uart_numicro_data uart_numicro_data_##index = {		\

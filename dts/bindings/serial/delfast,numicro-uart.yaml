@@ -8,6 +8,11 @@ properties:
     reg:
       required: true
 
+    peripheral-id:
+        type: int
+        description: peripheral ID (0..7)
+        required: true
+
     tx-pin:
       type: int
       description: TX pin

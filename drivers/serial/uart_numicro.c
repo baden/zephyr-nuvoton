@@ -164,7 +164,7 @@ static int uart_numicro_init(const struct device *dev)
 
 	LOG_INF("UART device init (%d, RX-PIN:%d, TX-PIN:%d)", config->idx, config->rx_pin, config->tx_pin);
 	// Значение из строки:reg = <0x40073000 0x1000>;
-	LOG_INF("  -> (DEV_CFG(dev))->devcfg.base = %08X", (DEV_CFG(dev))->devcfg.base);
+	LOG_INF("  -> (DEV_CFG(dev))->devcfg.base = %08lX", (DEV_CFG(dev))->devcfg.base);
 
     //  TODO: Set pins!!!!
 	/* Set pinctrl for UART0 RXD and TXD */
@@ -225,31 +225,31 @@ static const struct uart_driver_api uart_numicro_driver_api = {
 #endif
 };
 
-#define NUMICRO_INIT(index)						\
-									\
-static const struct uart_numicro_config uart_numicro_cfg_##index = {	\
-	.devcfg = {							\
-		.base = (uint8_t *)DT_INST_REG_ADDR(index),		\
-	},								\
-													\
-    .idx = ((DT_INST_REG_ADDR(index) - 0x40070000) >> 12),				\
-	.rx_pin = DT_INST_PROP(index, rx_pin),	\
-	.tx_pin = DT_INST_PROP(index, tx_pin),	\
-};									\
-									\
-static struct uart_numicro_data uart_numicro_data_##index = {		\
-	.ucfg = {							\
-		.baudrate = DT_INST_PROP(index, current_speed),		\
-	},								\
-};									\
-									\
-DEVICE_DT_INST_DEFINE(index,						\
-		    &uart_numicro_init,					\
-		    NULL,						\
-		    &uart_numicro_data_##index,				\
-		    &uart_numicro_cfg_##index,				\
-		    PRE_KERNEL_1, CONFIG_KERNEL_INIT_PRIORITY_DEVICE,	\
-		    &uart_numicro_driver_api);
+#define NUMICRO_INIT(index)													\
+																			\
+	static const struct uart_numicro_config uart_numicro_cfg_##index = {	\
+		.devcfg = {															\
+			.base = (uint8_t *)DT_INST_REG_ADDR(index),						\
+		},																	\
+																			\
+		.idx = DT_INST_PROP(index, peripheral_id),							\
+		.rx_pin = DT_INST_PROP(index, rx_pin),								\
+		.tx_pin = DT_INST_PROP(index, tx_pin),								\
+	};																		\
+																			\
+	static struct uart_numicro_data uart_numicro_data_##index = {			\
+		.ucfg = {															\
+			.baudrate = DT_INST_PROP(index, current_speed),					\
+		},																	\
+	};																		\
+																			\
+	DEVICE_DT_INST_DEFINE(index,											\
+			    &uart_numicro_init,											\
+			    NULL,														\
+			    &uart_numicro_data_##index,									\
+			    &uart_numicro_cfg_##index,									\
+			    PRE_KERNEL_1, CONFIG_KERNEL_INIT_PRIORITY_DEVICE,			\
+			    &uart_numicro_driver_api);
 
 DT_INST_FOREACH_STATUS_OKAY(NUMICRO_INIT)
 

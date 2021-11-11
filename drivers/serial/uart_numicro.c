@@ -28,9 +28,10 @@ LOG_MODULE_REGISTER(uart_numicro);
 
 struct uart_numicro_config {
 	struct uart_device_config devcfg;
-	uint32_t id_rst;
-	uint32_t id_clk;
+	// uint32_t id_rst;
+	// uint32_t id_clk;
 	// Not ideal solution
+	uint32_t idx;
 	uint32_t rx_pin;
 	uint32_t tx_pin;
 };
@@ -161,18 +162,9 @@ static int uart_numicro_init(const struct device *dev)
 	const struct uart_numicro_config *config = DEV_CFG(dev);
 	struct uart_numicro_data *ddata = DRV_DATA(dev);
 
-	LOG_INF("UART device init (%d, RX-PIN:%d, TX-PIN:%d)", 42, config->rx_pin, config->tx_pin);
-
-	SYS_ResetModule(config->id_rst);
-
-	SYS_UnlockReg();
-
-	/* Enable UART module clock */
-	CLK_EnableModuleClock(config->id_clk);
-
-	/* Select UART0 clock source is PLL */
-	CLK_SetModuleClock(config->id_clk, CLK_CLKSEL1_UART0SEL_PLL,
-			   CLK_CLKDIV0_UART0(0));
+	LOG_INF("UART device init (%d, RX-PIN:%d, TX-PIN:%d)", config->idx, config->rx_pin, config->tx_pin);
+	// Значение из строки:reg = <0x40073000 0x1000>;
+	LOG_INF("  -> (DEV_CFG(dev))->devcfg.base = %08X", (DEV_CFG(dev))->devcfg.base);
 
     //  TODO: Set pins!!!!
 	/* Set pinctrl for UART0 RXD and TXD */
@@ -182,9 +174,39 @@ static int uart_numicro_init(const struct device *dev)
 	// SYS->GPB_MFPH |= (SYS_GPB_MFPH_PB12MFP_UART0_RXD |
 	// 		  SYS_GPB_MFPH_PB13MFP_UART0_TXD);
 
-	// PC-001
-	SYS->GPC_MFPH &= ~(SYS_GPC_MFPH_PC12MFP_Msk | SYS_GPC_MFPH_PC11MFP_Msk);
-	SYS->GPC_MFPH |= (SYS_GPC_MFPH_PC12MFP_UART0_TXD | SYS_GPC_MFPH_PC11MFP_UART0_RXD);
+	// TODO: Temporrary solution!!!!
+	switch(config->idx) {
+		case 0: // UART0
+			// UART0: PC-001
+			LOG_INF("  * Init UART0");
+			SYS_ResetModule(UART0_RST);
+			SYS_UnlockReg();
+
+			CLK_EnableModuleClock(UART0_MODULE);	/* Enable UART module clock */
+			CLK_SetModuleClock(UART0_MODULE, CLK_CLKSEL1_UART0SEL_PLL,
+					   CLK_CLKDIV0_UART0(0));	/* Select UART0 clock source is PLL */
+			SYS->GPC_MFPH &= ~(SYS_GPC_MFPH_PC12MFP_Msk | SYS_GPC_MFPH_PC11MFP_Msk);
+			SYS->GPC_MFPH |= (SYS_GPC_MFPH_PC12MFP_UART0_TXD | SYS_GPC_MFPH_PC11MFP_UART0_RXD);
+			break;
+		case 1: // UART1
+			LOG_INF("  * Init UART1 (TBD)");
+			break;
+		case 2: // UART2
+			LOG_INF("  * Init UART2 (TBD)");
+			break;
+		case 3: // UART3
+			// UART3: PC-001
+			LOG_INF("  * Init UART3");
+			SYS_ResetModule(UART3_RST);
+			SYS_UnlockReg();
+
+			CLK_EnableModuleClock(UART3_MODULE);	/* Enable UART module clock */
+			CLK_SetModuleClock(UART3_MODULE, CLK_CLKSEL3_UART3SEL_PLL,
+					   CLK_CLKDIV4_UART3(0));	/* Select UART3 clock source is PLL */
+			SYS->GPE_MFPL &= ~(SYS_GPE_MFPL_PE1MFP_Msk | SYS_GPE_MFPL_PE0MFP_Msk);
+			SYS->GPE_MFPL |= (SYS_GPE_MFPL_PE1MFP_UART3_TXD | SYS_GPE_MFPL_PE0MFP_UART3_RXD);
+			break;
+	}
 
 	SYS_LockReg();
 
@@ -209,9 +231,8 @@ static const struct uart_numicro_config uart_numicro_cfg_##index = {	\
 	.devcfg = {							\
 		.base = (uint8_t *)DT_INST_REG_ADDR(index),		\
 	},								\
-	.id_rst = UART##index##_RST,					\
-	.id_clk = UART##index##_MODULE,					\
 													\
+    .idx = ((DT_INST_REG_ADDR(index) - 0x40070000) >> 12),				\
 	.rx_pin = DT_INST_PROP(index, rx_pin),	\
 	.tx_pin = DT_INST_PROP(index, tx_pin),	\
 };									\
@@ -231,3 +252,7 @@ DEVICE_DT_INST_DEFINE(index,						\
 		    &uart_numicro_driver_api);
 
 DT_INST_FOREACH_STATUS_OKAY(NUMICRO_INIT)
+
+// .id_rst = UART##index##_RST,
+// .id_clk = UART##index##_MODULE,
+//

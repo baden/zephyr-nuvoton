@@ -1,0 +1,56 @@
+description: NUVOTON M84x NUMICRO FAMILY UART
+
+compatible: "nuvoton,m48x-uart"
+
+include: uart-controller.yaml
+
+properties:
+    reg:
+      required: true
+
+    peripheral-id:
+        type: int
+        description: peripheral ID (0..7)
+        required: true
+
+    tx-port:
+      type: string
+      required: true
+      enum:
+        - "A"
+        - "B"
+        - "C"
+        - "D"
+        - "E"
+        - "F"
+        - "G"
+        - "H"
+
+    tx-pin:
+      type: string
+      required: true
+
+    rx-port:
+      type: string
+      required: true
+      enum:
+        - "A"
+        - "B"
+        - "C"
+        - "D"
+        - "E"
+        - "F"
+        - "G"
+        - "H"
+
+    rx-pin:
+      type: string
+      required: true
+
+    rx-gpios:
+      type: phandle-array
+      required: false
+
+    tx-gpios:
+      type: phandle-array
+      required: false

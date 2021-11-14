@@ -38,7 +38,7 @@
 
 	soc {
 		uart0: serial@40070000 {
-			compatible = "delfast,numicro-uart";
+			compatible = "nuvoton,m48x-uart";
 			reg = <0x40070000 0x1000>;
             peripheral-id = <0>;
 			status = "disabled";
@@ -46,7 +46,7 @@
 		};
 
 		uart1: serial@40071000 {
-			compatible = "delfast,numicro-uart";
+			compatible = "nuvoton,m48x-uart";
 			reg = <0x40071000 0x1000>;
             peripheral-id = <1>;
 			status = "disabled";
@@ -54,7 +54,7 @@
 		};
 
 		uart2: serial@40072000 {
-			compatible = "delfast,numicro-uart";
+			compatible = "nuvoton,m48x-uart";
 			reg = <0x40072000 0x1000>;
             peripheral-id = <2>;
 			status = "disabled";
@@ -62,7 +62,7 @@
 		};
 
 		uart3: serial@40073000 {
-			compatible = "delfast,numicro-uart";
+			compatible = "nuvoton,m48x-uart";
 			reg = <0x40073000 0x1000>;
             peripheral-id = <3>;
 			status = "disabled";
@@ -70,7 +70,7 @@
 		};
 
 		uart4: serial@40074000 {
-			compatible = "delfast,numicro-uart";
+			compatible = "nuvoton,m48x-uart";
 			reg = <0x40074000 0x1000>;
             peripheral-id = <4>;
 			status = "disabled";
@@ -78,7 +78,7 @@
 		};
 
 		uart5: serial@40075000 {
-			compatible = "delfast,numicro-uart";
+			compatible = "nuvoton,m48x-uart";
 			reg = <0x40075000 0x1000>;
             peripheral-id = <5>;
 			status = "disabled";
@@ -86,7 +86,7 @@
 		};
 
 		uart6: serial@40076000 {
-			compatible = "delfast,numicro-uart";
+			compatible = "nuvoton,m48x-uart";
 			reg = <0x40076000 0x1000>;
             peripheral-id = <6>;
 			status = "disabled";
@@ -94,12 +94,34 @@
 		};
 
 		uart7: serial@40077000 {
-			compatible = "delfast,numicro-uart";
+			compatible = "nuvoton,m48x-uart";
 			reg = <0x40077000 0x1000>;
             peripheral-id = <7>;
 			status = "disabled";
 			label = "UART_7";
 		};
+
+        
+        pinctrl@41008000 {
+            compatible = "nuvoton,m48x-pinctrl";
+            #address-cells = <1>;
+			#size-cells = <1>;
+			ranges = <0x41008000 0x41008000 0x200>;
+            porta: gpio@41008000 {
+                compatible = "nuvoton,m48x-gpio";
+                reg = <0x41008000 0x80>;
+                label = "PORTA";
+                gpio-controller;
+                #gpio-cells = <2>;
+                #nuvoton,pin-cells = <2>;
+            };
+        };
+
+        pinmux_a: pinmux@40000000 {
+			compatible = "nuvoton,m48x-pinmux";
+			reg = <0x40000000 0x80>;
+		};
+
 
 	};
 };

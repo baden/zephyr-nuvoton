@@ -12,7 +12,7 @@
 #include "gpio_m48x.h"
 
 
-#define DT_DRV_COMPAT delfast_gpio
+#define DT_DRV_COMPAT nuvoton_m48x_gpio
 
 #include <drivers/gpio.h>
 #include <zephyr.h>

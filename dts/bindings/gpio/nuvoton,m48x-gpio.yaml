@@ -3,7 +3,7 @@
 
 description: Delfast GPIO node
 
-compatible: "delfast,gpio"
+compatible: "nuvoton,m48x-gpio"
 
 include: [gpio-controller.yaml, base.yaml]
 

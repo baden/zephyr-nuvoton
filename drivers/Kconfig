@@ -4,4 +4,5 @@
 menu "Drivers"
 rsource "sensor/Kconfig"
 rsource "serial/Kconfig"
+rsource "pinmux/Kconfig"
 endmenu

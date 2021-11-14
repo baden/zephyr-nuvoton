@@ -5,5 +5,4 @@
 
 comment "Serial Drivers"
 
-rsource "Kconfig.delfast"
-
+rsource "Kconfig.m48x"

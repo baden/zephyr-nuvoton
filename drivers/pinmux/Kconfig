@@ -1,0 +1,12 @@
+# Nuvorton M48x pinmux configuration options
+
+# Copyright (c) 2021 Denys (baden.i.ua@gmail.com)
+# SPDX-License-Identifier: Apache-2.0
+
+config PINMUX_M48X
+	bool "Nuvorton M48x pin multiplexer driver"
+	default y
+	depends on SOC_FAMILY_NUMICRO
+	# SOC_SERIES_M48X ?
+	help
+	  Enable support for the Nuvorton M48x PORT pin multiplexer.

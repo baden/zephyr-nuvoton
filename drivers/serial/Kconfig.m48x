@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
-# DELFAST version of NUVOTON UART configuration
+# DELFAST version of NUVOTON M48x-series UART configuration
 #
 # Copyright (c) 2020 Linumiz, (c) 2021 Baden
 # Author: Saravanan Sekar <saravanan@linumiz.com>, Batrak Denys <baden.i.ua@gmail.com>
 
-config UART_DELFAST
-	bool "DELFAST NUVOTON MCU serial driver"
+config UART_M48X
+	bool "DELFAST NUVOTON M48x MCU serial driver"
 	select SERIAL_HAS_DRIVER
 	select HAS_NUMICRO_UART
 	depends on SOC_FAMILY_NUMICRO
 	help
-	  This option enables the UART driver for Nuvoton Numicro (Delfast version)
+	  This option enables the UART driver for Nuvoton M48x (May be hardcoded to Delfast PC-001)
 	  family of processors.
 	  Say y to use serial port on Nuvoton MCU.

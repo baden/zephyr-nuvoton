@@ -101,20 +101,31 @@
 			label = "UART_7";
 		};
 
-        
-        pinctrl@41008000 {
+        pinctrl@40004000 {
             compatible = "nuvoton,m48x-pinctrl";
             #address-cells = <1>;
 			#size-cells = <1>;
-			ranges = <0x41008000 0x41008000 0x200>;
-            porta: gpio@41008000 {
+			/*ranges = <0x40004000 0x40004200 0x40>;*/
+            ranges = <0x40004000 0x40004000 0x200>;
+            porta: gpio@40004000 {
                 compatible = "nuvoton,m48x-gpio";
-                reg = <0x41008000 0x80>;
+                reg = <0x40004000 0x40>;
                 label = "PORTA";
                 gpio-controller;
                 #gpio-cells = <2>;
                 #nuvoton,pin-cells = <2>;
             };
+
+            /* .... */
+            portf: gpio@40004140 {
+                compatible = "nuvoton,m48x-gpio";
+                reg = <0x40004140 0x40>;
+                label = "PORTF";
+                gpio-controller;
+                #gpio-cells = <2>;
+                #nuvoton,pin-cells = <2>;
+            };
+
         };
 
         pinmux_a: pinmux@40000000 {

@@ -3,6 +3,7 @@
 
 config EXAMPLESENSOR
 	bool "Example sensor"
+	default n
 	depends on GPIO
 	help
 	  Enable example sensor

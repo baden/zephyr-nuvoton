@@ -51,6 +51,10 @@ properties:
       type: phandle-array
       required: false
 
+    rx-gpio:
+      type: phandle
+      required: false
+
     tx-gpios:
       type: phandle-array
       required: false

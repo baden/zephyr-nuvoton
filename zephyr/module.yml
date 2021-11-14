@@ -4,6 +4,4 @@ build:
   depends:
    - hal_nuvoton
   settings:
-    board_root: .
     dts_root: .
-

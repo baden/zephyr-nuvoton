@@ -115,12 +115,58 @@
                 #gpio-cells = <2>;
                 #nuvoton,pin-cells = <2>;
             };
-
-            /* .... */
+            portb: gpio@40004040 {
+                compatible = "nuvoton,m48x-gpio";
+                reg = <0x40004040 0x40>;
+                label = "PORTB";
+                gpio-controller;
+                #gpio-cells = <2>;
+                #nuvoton,pin-cells = <2>;
+            };
+            portc: gpio@40004080 {
+                compatible = "nuvoton,m48x-gpio";
+                reg = <0x40004080 0x40>;
+                label = "PORTC";
+                gpio-controller;
+                #gpio-cells = <2>;
+                #nuvoton,pin-cells = <2>;
+            };
+            portd: gpio@400040C0 {
+                compatible = "nuvoton,m48x-gpio";
+                reg = <0x400040C0 0x40>;
+                label = "PORTD";
+                gpio-controller;
+                #gpio-cells = <2>;
+                #nuvoton,pin-cells = <2>;
+            };
+            porte: gpio@40004100 {
+                compatible = "nuvoton,m48x-gpio";
+                reg = <0x40004100 0x40>;
+                label = "PORTE";
+                gpio-controller;
+                #gpio-cells = <2>;
+                #nuvoton,pin-cells = <2>;
+            };
             portf: gpio@40004140 {
                 compatible = "nuvoton,m48x-gpio";
                 reg = <0x40004140 0x40>;
                 label = "PORTF";
+                gpio-controller;
+                #gpio-cells = <2>;
+                #nuvoton,pin-cells = <2>;
+            };
+            portg: gpio@40004180 {
+                compatible = "nuvoton,m48x-gpio";
+                reg = <0x40004180 0x40>;
+                label = "PORTG";
+                gpio-controller;
+                #gpio-cells = <2>;
+                #nuvoton,pin-cells = <2>;
+            };
+            porth: gpio@400041C0 {
+                compatible = "nuvoton,m48x-gpio";
+                reg = <0x400041C0 0x40>;
+                label = "PORTH";
                 gpio-controller;
                 #gpio-cells = <2>;
                 #nuvoton,pin-cells = <2>;

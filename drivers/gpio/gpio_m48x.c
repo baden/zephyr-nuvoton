@@ -89,11 +89,11 @@ static int gpio_m48x_port_get_raw(const struct device *dev, gpio_port_value_t *v
 {
 	const struct gpio_m48x_config *config = DEV_CFG(dev);
 
-	LOG_DBG("gpio_n48x_port_get_raw [%s, %d]", dev->name, config->regs->PIN);
-	// *value = config->regs->PIN;
-	*value = PD12;
+	// LOG_DBG("gpio_n48x_port_get_raw [%s, %d]", dev->name, config->regs->PIN);
+	*value = config->regs->PIN;
+	// *value = PD12;
 
-	return -ENOTSUP;
+	return 0;
 }
 #if 0
 static int gpio_m48x_port_set_masked_raw(const struct device *dev,

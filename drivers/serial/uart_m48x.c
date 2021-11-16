@@ -73,10 +73,14 @@ static int uart_numicro_poll_in(const struct device *dev, unsigned char *c)
 {
 	uint32_t count;
 
-	count = UART_Read(UART_STRUCT(dev), c, 1);
-	if (!count) {
-		return -1;
-	}
+	UART_T* uart = UART_STRUCT(dev);
+
+	if(uart->FIFOSTS & UART_FIFOSTS_RXEMPTY_Msk) return -EBUSY;
+	// count = UART_Read(uart, c, 1);
+	// if (!count) {	// This must be always good
+		// 	return -1;
+		// }
+	*c = (unsigned char)uart->DAT;
 
 	return 0;
 }

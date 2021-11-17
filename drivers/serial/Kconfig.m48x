@@ -8,6 +8,7 @@
 config UART_M48X
 	bool "DELFAST NUVOTON M48x MCU serial driver"
 	select SERIAL_HAS_DRIVER
+	#select SERIAL_SUPPORT_INTERRUPT
 	select HAS_NUMICRO_UART
 	depends on SOC_FAMILY_NUMICRO
 	help

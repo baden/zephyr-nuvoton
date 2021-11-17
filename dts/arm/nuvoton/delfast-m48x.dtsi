@@ -84,7 +84,7 @@
 			status = "disabled";
 			label = "UART_5";
 		};
-
+        /*
 		uart6: serial@40076000 {
 			compatible = "nuvoton,m48x-uart";
 			reg = <0x40076000 0x1000>;
@@ -100,7 +100,7 @@
 			status = "disabled";
 			label = "UART_7";
 		};
-
+        */
         pinctrl@40004000 {
             compatible = "nuvoton,m48x-pinctrl";
             #address-cells = <1>;

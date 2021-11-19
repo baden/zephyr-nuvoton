@@ -165,11 +165,29 @@ static int gpio_m48x_pin_interrupt_configure(const struct device *dev,
 	// struct gpio_m48x_data *context = dev->data;
 	GPIO_T *regs = config->regs;
 
-	LOG_DBG("gpio_m48x_pin_interrupt_configure regs:%p 0x%08X", regs, (unsigned)pin);
+	LOG_DBG("gpio_m48x_pin_interrupt_configure regs:%p 0x%08X m:0x%04X t:0x%04X", regs, (unsigned)pin, (int)mode, (int)trig);
+
+	GPIO_DisableInt(regs, pin);
+	GPIO_CLR_INT_FLAG(regs, pin);
 
 	GPIO_SET_DEBOUNCE_TIME(GPIO_DBCTL_DBCLKSRC_LIRC, GPIO_DBCTL_DBCLKSEL_256);
     GPIO_ENABLE_DEBOUNCE(regs, BIT(pin));
-    GPIO_EnableInt(regs, pin, GPIO_INT_BOTH_EDGE);
+
+	if (mode != GPIO_INT_MODE_DISABLED) {
+		if (mode == GPIO_INT_MODE_EDGE) {
+			if (trig == GPIO_INT_TRIG_BOTH) {
+				GPIO_EnableInt(regs, pin, GPIO_INT_BOTH_EDGE);
+			} else if (trig == GPIO_INT_TRIG_HIGH) {
+				GPIO_EnableInt(regs, pin, GPIO_INT_RISING);
+			} else { /* GPIO_INT_TRIG_LOW */
+				GPIO_EnableInt(regs, pin, GPIO_INT_FALLING);
+			}
+		} else {
+			return -ENOTSUP;
+		}
+	} else {
+	}
+
 	// TODO: mode, trig
 	return 0;
 }

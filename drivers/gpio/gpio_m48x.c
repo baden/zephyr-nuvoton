@@ -13,9 +13,11 @@
 #include "gpio_m48x.h"
 
 #include <errno.h>
+#include <kernel.h>
 #include <device.h>
-#include <drivers/gpio.h>
+#include <init.h>
 #include <soc.h>
+#include <drivers/gpio.h>
 
 // #include <drivers/gpio/gpio_utils.h>
 #include "gpio_utils.h"

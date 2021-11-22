@@ -1,0 +1,23 @@
+# Nuvoton M48X flash driver config
+
+# Copyright (c) 2021 BaDen baden.i.ua@gmail.com
+# SPDX-License-Identifier: Apache-2.0
+
+menuconfig SOC_FLASH_M48X
+	bool "Nuvoton M48X flash driver"
+	default y
+	#depends on SOC_FAMILY_M48X
+	depends on SOC_FAMILY_NUMICRO
+	#depends on CONFIG_SOC_M487
+	select FLASH_HAS_PAGE_LAYOUT
+	select FLASH_HAS_DRIVER_ENABLED
+	select MPU_ALLOW_FLASH_WRITE if ARM_MPU
+	help
+	  Enable the Nuvoton M48X series internal flash driver.
+
+# config SOC_FLASH_M48X_EMULATE_BYTE_PAGES
+# 	bool "Emulate byte-sized pages"
+# 	depends on SOC_FLASH_M48X
+# 	help
+# 	  Emulate a device with byte-sized pages by doing a
+# 	  read/modify/erase/write.

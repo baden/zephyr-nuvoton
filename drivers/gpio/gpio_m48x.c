@@ -24,8 +24,8 @@
 
 // #define LOG_LEVEL  LOG_LEVEL_DBG	//CONFIG_GPIO_LOG_LEVEL
 #include <logging/log.h>
-LOG_MODULE_REGISTER(gpio_m48x, LOG_LEVEL_DBG);	//CONFIG_GPIO_LOG_LEVEL
-// LOG_MODULE_REGISTER(gpio_m48x, LOG_LEVEL_INF);	//CONFIG_GPIO_LOG_LEVEL
+// LOG_MODULE_REGISTER(gpio_m48x, LOG_LEVEL_DBG);	//CONFIG_GPIO_LOG_LEVEL
+LOG_MODULE_REGISTER(gpio_m48x, LOG_LEVEL_INF);	//CONFIG_GPIO_LOG_LEVEL
 
 typedef void (*config_func_t)(const struct device *dev);
 
@@ -70,6 +70,11 @@ static int gpio_m48x_config(const struct device *dev, gpio_pin_t pin, gpio_flags
 		GPIO_SetMode(regs, BIT(pin), GPIO_MODE_OUTPUT);
 		// Но только через
 		// regs->MODE |= BIT(pin)
+	}
+
+	if (flags & GPIO_INT_DEBOUNCE) {
+		GPIO_SET_DEBOUNCE_TIME(GPIO_DBCTL_DBCLKSRC_LIRC, GPIO_DBCTL_DBCLKSEL_256);
+	    GPIO_ENABLE_DEBOUNCE(regs, BIT(pin));
 	}
 
 	return 0;
@@ -139,7 +144,7 @@ static void gpio_m48x_isr(const struct device *dev)
 	// Write it back for clearing interrupt
 	PD->INTSRC = int_stat;
 
-	printk("%p:0x%02X", dev, int_stat);
+	// printk("%p:0x%02X", dev, int_stat);
 
 	// gpio_fire_callbacks(&data->cb, data->dev, pins);
 	gpio_fire_callbacks(&context->cb, dev, int_stat);
@@ -171,9 +176,6 @@ static int gpio_m48x_pin_interrupt_configure(const struct device *dev,
 
 	GPIO_DisableInt(regs, pin);
 	GPIO_CLR_INT_FLAG(regs, pin);
-
-	GPIO_SET_DEBOUNCE_TIME(GPIO_DBCTL_DBCLKSRC_LIRC, GPIO_DBCTL_DBCLKSEL_256);
-    GPIO_ENABLE_DEBOUNCE(regs, BIT(pin));
 
 	if (mode != GPIO_INT_MODE_DISABLED) {
 		if (mode == GPIO_INT_MODE_EDGE) {
@@ -230,7 +232,7 @@ static int gpio_m48x_init(const struct device *dev) {
 
 ISR_DIRECT_DECLARE(GPA_IRQHandler)
 {
-	printk("<a>");
+	// printk("<a>");
 	gpio_m48x_isr(DEVICE_DT_GET(DT_NODELABEL(porta)));
 	return 0;
 }
@@ -264,7 +266,7 @@ DEVICE_DT_DEFINE(DT_NODELABEL(porta),
 
 ISR_DIRECT_DECLARE(GPB_IRQHandler)
 {
-	printk("<b>");
+	// printk("<b>");
 	gpio_m48x_isr(DEVICE_DT_GET(DT_NODELABEL(portb)));
 	return 0;
 }
@@ -297,7 +299,7 @@ DEVICE_DT_DEFINE(DT_NODELABEL(portb),
 
 ISR_DIRECT_DECLARE(GPC_IRQHandler)
 {
-	printk("<c>");
+	// printk("<c>");
 	gpio_m48x_isr(DEVICE_DT_GET(DT_NODELABEL(portc)));
 	return 0;
 }
@@ -331,7 +333,7 @@ DEVICE_DT_DEFINE(DT_NODELABEL(portc),
 
 ISR_DIRECT_DECLARE(GPD_IRQHandler)
 {
-	printk("<d>");
+	// printk("<d>");
 	gpio_m48x_isr(DEVICE_DT_GET(DT_NODELABEL(portd)));
 	return 0;
 }
@@ -365,7 +367,7 @@ DEVICE_DT_DEFINE(DT_NODELABEL(portd),
 
 ISR_DIRECT_DECLARE(GPE_IRQHandler)
 {
-	printk("<e>");
+	// printk("<e>");
 	gpio_m48x_isr(DEVICE_DT_GET(DT_NODELABEL(porte)));
 	return 0;
 }
@@ -400,7 +402,7 @@ DEVICE_DT_DEFINE(DT_NODELABEL(porte),
 
 ISR_DIRECT_DECLARE(GPF_IRQHandler)
 {
-	printk("<f>");
+	// printk("<f>");
 	gpio_m48x_isr(DEVICE_DT_GET(DT_NODELABEL(portf)));
 	return 0;
 }
@@ -435,7 +437,7 @@ DEVICE_DT_DEFINE(DT_NODELABEL(portf),
 
 ISR_DIRECT_DECLARE(GPG_IRQHandler)
 {
-	printk("<g>");
+	// printk("<g>");
 	gpio_m48x_isr(DEVICE_DT_GET(DT_NODELABEL(portg)));
 	return 0;
 }
@@ -469,7 +471,7 @@ DEVICE_DT_DEFINE(DT_NODELABEL(portg),
 
 ISR_DIRECT_DECLARE(GPH_IRQHandler)
 {
-	printk("<h>");
+	// printk("<h>");
 	gpio_m48x_isr(DEVICE_DT_GET(DT_NODELABEL(porth)));
 	return 0;
 }

@@ -51,18 +51,18 @@ static int pinmux_m48x_init(const struct device *dev)
 {
 	/* Nothing to do. */
 	const struct pinmux_m48x_config *cfg = dev->config;
-	LOG_DBG("init regs=%08X", (unsigned)cfg->regs);
-	LOG_DBG("SYS_BASE=%08X", (unsigned)SYS_BASE);
-	LOG_DBG("SYS=%08X", (unsigned)SYS);
-	LOG_DBG("UART0_BASE=%08X", (unsigned)UART0_BASE);
-	LOG_DBG("SYS->GPA_MFPL=%08X", (unsigned)&SYS->GPA_MFPL);
-	LOG_DBG("SYS->GPB_MFPL=%08X", (unsigned)&SYS->GPB_MFPL);
-	LOG_DBG("SYS->GPC_MFPL=%08X", (unsigned)&SYS->GPC_MFPL);
-	LOG_DBG("SYS->GPD_MFPL=%08X", (unsigned)&SYS->GPD_MFPL);
-	LOG_DBG("SYS->GPE_MFPL=%08X", (unsigned)&SYS->GPE_MFPL);
-	LOG_DBG("SYS->GPF_MFPL=%08X", (unsigned)&SYS->GPF_MFPL);
-	LOG_DBG("SYS->GPG_MFPL=%08X", (unsigned)&SYS->GPG_MFPL);
-	LOG_DBG("SYS->GPH_MFPL=%08X", (unsigned)&SYS->GPH_MFPL);
+	// LOG_DBG("init regs=%08X", (unsigned)cfg->regs);
+	// LOG_DBG("SYS_BASE=%08X", (unsigned)SYS_BASE);
+	// LOG_DBG("SYS=%08X", (unsigned)SYS);
+	// LOG_DBG("UART0_BASE=%08X", (unsigned)UART0_BASE);
+	// LOG_DBG("SYS->GPA_MFPL=%08X", (unsigned)&SYS->GPA_MFPL);
+	// LOG_DBG("SYS->GPB_MFPL=%08X", (unsigned)&SYS->GPB_MFPL);
+	// LOG_DBG("SYS->GPC_MFPL=%08X", (unsigned)&SYS->GPC_MFPL);
+	// LOG_DBG("SYS->GPD_MFPL=%08X", (unsigned)&SYS->GPD_MFPL);
+	// LOG_DBG("SYS->GPE_MFPL=%08X", (unsigned)&SYS->GPE_MFPL);
+	// LOG_DBG("SYS->GPF_MFPL=%08X", (unsigned)&SYS->GPF_MFPL);
+	// LOG_DBG("SYS->GPG_MFPL=%08X", (unsigned)&SYS->GPG_MFPL);
+	// LOG_DBG("SYS->GPH_MFPL=%08X", (unsigned)&SYS->GPH_MFPL);
 	return 0;
 }
 

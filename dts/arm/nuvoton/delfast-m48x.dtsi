@@ -31,6 +31,7 @@
 		write-block-size = <1>;
 	};
 
+
 	sysclk: system-clock {
 		compatible = "fixed-clock";
 		clock-frequency = <192000000>;
@@ -38,6 +39,27 @@
 	};
 
 	soc {
+        /*
+        nvmctrl: nvmctrl@41004000  {
+            compatible = "nuvoton,m48x-nvmctrl";
+            label = "FLASH_CTRL";
+            reg = <0x41004000 0x22>;
+            interrupts = <5 0>;
+            lock-regions = <16>;
+
+            #address-cells = <1>;
+            #size-cells = <1>;
+
+            flash0: flash@0 {
+                //compatible = "soc-nv-flash";
+                compatible = "serial-flash";
+                label = "FLASH_0";
+                reg = <0 0x40000>;
+                write-block-size = <4>;
+            };
+        };
+        */
+
 		uart0: serial@40070000 {
 			compatible = "nuvoton,m48x-uart";
 			reg = <0x40070000 0x1000>;

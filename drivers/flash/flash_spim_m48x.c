@@ -57,7 +57,7 @@ static inline void flash_spim_sem_give(const struct device *dev)
 static int flash_spim_read(const struct device *dev, off_t address, void *buffer, size_t length)
 {
 	// const struct flash_spim_dev_config *const cfg = DEV_CFG(dev);
-	LOG_ERR("TODO: flash_spim_read (0x%08x)", address);
+	// LOG_ERR("TODO: flash_spim_read (0x%08x)", address);
 
 	if (length == 0) {
 		return 0;
@@ -72,9 +72,14 @@ static int flash_spim_read(const struct device *dev, off_t address, void *buffer
     SPIM_SET_DCNUM(8);
     // SPIM_SetQuadEnable(1, 1);    // For CMD_DMA_FAST_QUAD_READ
     SPIM_SetQuadEnable(0, 1);    	// For CMD_DMA_FAST_READ, OPCODE_FAST_READ
-    SPIM_DMA_Read(address, 0, length, buffer, CMD_DMA_FAST_READ, 1);
+
+	#ifdef CONFIG_SPIM_FLASH_M48X_USE_DMA
+		// TODO: buffer must be alligned to 32 bytes!!!
+    	SPIM_DMA_Read(address, 0, length, buffer, CMD_DMA_FAST_READ, 1);
     // memset(buffer, 0, length);
-    // SPIM_IO_Read(address, 0, length, buffer, OPCODE_FAST_READ, 1, 1, 1, 1);
+	#else
+    	SPIM_IO_Read(address, 0, length, buffer, OPCODE_FAST_READ, 1, 1, 1, 1);
+	#endif
 
 	flash_spim_sem_give(dev);
 	return 0;
@@ -83,7 +88,7 @@ static int flash_spim_read(const struct device *dev, off_t address, void *buffer
 static int flash_spim_write(const struct device *dev, off_t address, const void *buffer, size_t length)
 {
 	// const struct flash_spim_dev_config *const cfg = DEV_CFG(dev);
-	LOG_ERR("TODO: flash_spim_write");
+	// LOG_ERR("TODO: flash_spim_write");
 
 	if (length == 0) {
 		return 0;
@@ -100,8 +105,12 @@ static int flash_spim_write(const struct device *dev, off_t address, const void 
 	//
 	// SPIM_DMA_Write(address, 0, length, buffer, CMD_QUAD_PAGE_PROGRAM_WINBOND);
 
-	SPIM_DMA_Write(address, 0, length, buffer, CMD_NORMAL_PAGE_PROGRAM);
-    // SPIM_IO_Write(address, 0 /*USE_4_BYTES_MODE*/, length, buffer, OPCODE_PP, 1, 1, 1);
+	#ifdef CONFIG_SPIM_FLASH_M48X_USE_DMA
+		// TODO: buffer must be alligned to 32 bytes!!!
+		SPIM_DMA_Write(address, 0, length, (uint8_t*)buffer, CMD_NORMAL_PAGE_PROGRAM);
+	#else
+    	SPIM_IO_Write(address, 0 /*USE_4_BYTES_MODE*/, length, (uint8_t*)buffer, OPCODE_PP, 1, 1, 1);
+	#endif
 
 	flash_spim_sem_give(dev);
 	return 0;
@@ -119,7 +128,7 @@ static int flash_spim_erase(const struct device *dev, off_t start, size_t len)
 {
 	// uint32_t sector_size = DEV_CFG(dev)->chip->sector_size;
 	// uint32_t chip_size = DEV_CFG(dev)->chip->chip_size;
-	LOG_ERR("TODO: flash_spim_erase");
+	// LOG_ERR("TODO: flash_spim_erase");
 
 	if (start % FLASH_ERASE_BLK_SZ != 0) {
 		LOG_ERR("Start must be aligned to 64K");
@@ -180,17 +189,13 @@ static const struct flash_parameters *flash_spim_get_parameters(const struct dev
 static int flash_spim_init(const struct device *dev)
 {
 	struct flash_spim_dev_data *const dev_data = DEV_DATA(dev);
-	LOG_ERR("TODO: flash_spim_init(%p)", dev);
-	LOG_ERR("FLASH_WRITE_BLK_SZ = %d", FLASH_WRITE_BLK_SZ);
-	LOG_ERR("FLASH_ERASE_BLK_SZ = %d", FLASH_ERASE_BLK_SZ);
-
-
-	int err;
-	const struct spim_config *cfg = dev->config;
-	struct spim_data *data = dev->data;
+	// LOG_ERR("TODO: flash_spim_init(%p)", dev);
+	// LOG_ERR("FLASH_WRITE_BLK_SZ = %d", FLASH_WRITE_BLK_SZ);
+	// LOG_ERR("FLASH_ERASE_BLK_SZ = %d", FLASH_ERASE_BLK_SZ);
+	// int err;
+	// const struct spim_config *cfg = dev->config;
+	// struct spim_data *data = dev->data;
 	// SPIM_T *regs = cfg->regs;
-
-	LOG_ERR("TODO: spim_init");
 
 	uint8_t     idBuf[3];
 

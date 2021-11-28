@@ -17,3 +17,8 @@ menuconfig SOC_FLASH_SPIM_M48X
 	#select MPU_ALLOW_FLASH_WRITE if ARM_MPU
 	help
 	  Enable the Nuvoton SPIM M48X series internal flash driver.
+
+config SPIM_FLASH_M48X_USE_DMA
+	bool "Try to use SPIM DMA"
+	default n
+	

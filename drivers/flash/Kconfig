@@ -1,3 +1,4 @@
 comment "Flash Drivers"
 
 rsource "Kconfig.m48x"
+rsource "Kconfig.spim_m48x"

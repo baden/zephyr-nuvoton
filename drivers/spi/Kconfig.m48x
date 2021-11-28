@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# DELFAST version of NUVOTON M48x-series SPIM configuration
+#
+# Copyright (c) 2021 Baden
+# Author: Batrak Denys <baden.i.ua@gmail.com>
+
+config SPI_M48X
+	bool "DELFAST NUVOTON M48x MCU SPIM driver"
+	default y
+	select DMA if SPI_ASYNC
+	depends on SOC_FAMILY_NUMICRO
+	help
+	  Enable support for the Nuvoton M48x SPIM driver.

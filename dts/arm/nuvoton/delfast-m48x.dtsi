@@ -195,6 +195,38 @@
                 #nuvoton,pin-cells = <2>;
             };
 
+
+
+            /* Dedicated SPI interface to access SPI flashes
+        	spi_fiu0: spi@40020000 {
+        		compatible = "nuvoton,npcx-spi-fiu";
+        		#address-cells = <1>;
+        		#size-cells = <0>;
+        		reg = <0x40020000 0x2000>;
+        		//clocks = <&pcc NPCX_CLOCK_BUS_APB3 NPCX_PWDWN_CTL1 2>;
+        		label = "SPI_FIU";
+        	};
+            */
+
+            spim_flash: flash-controller@40000000 {
+    			compatible = "nuvoton,m48x-spim-flash-controller";
+    			label = "SPIM_FLASH_CTRL";
+    			reg = <0x40000000 0x1000>;
+    			/* interrupts = <3 0>; */
+
+    			#address-cells = <1>;
+    			#size-cells = <1>;
+
+    			spim_flash0: flash@0 {
+    				compatible = "soc-nv-flash";
+    				label = "FLASH_ESP32";
+    				reg = <0 0x400000>;
+    				erase-block-size = <4096>;
+    				write-block-size = <4>;
+    			};
+    		};
+
+
         };
 
         pinmux_a: pinmux@40000000 {
@@ -202,9 +234,21 @@
 			reg = <0x40000000 0x80>;
 		};
 
+        /*
+        spim: spim@40007000 {
+    		compatible = "nuvoton,m48x-spim";
+            reg = <0x40007000 0x1000>;
+    		label = "SPIM_M48x";
+    		// erase-block-size = <4096>;
+    		// write-block-size = <1>;
+    	};
+        */
+
 
 	};
 };
+
+
 
 &nvic {
 	arm,num-irq-priority-bits = <4>;

@@ -1,0 +1,10 @@
+# SPI driver configuration options
+
+# Copyright (c) 2021 BaDen (baden.i.ua@gmail.com)
+# SPDX-License-Identifier: Apache-2.0
+
+comment "SPI Drivers"
+
+if SPI
+rsource "Kconfig.m48x"
+endif # SPI

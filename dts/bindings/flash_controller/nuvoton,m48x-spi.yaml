@@ -1,0 +1,5 @@
+description: Nuvoton M48x Family SPIM flash controller
+
+compatible: "nuvoton,m48x-spim-flash-controller"
+
+include: flash-controller.yaml

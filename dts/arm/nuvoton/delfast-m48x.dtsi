@@ -208,23 +208,25 @@
         	};
             */
 
+
             spim_flash: flash-controller@40000000 {
-    			compatible = "nuvoton,m48x-spim-flash-controller";
-    			label = "SPIM_FLASH_CTRL";
-    			reg = <0x40000000 0x1000>;
-    			/* interrupts = <3 0>; */
+                compatible = "nuvoton,m48x-spim-flash-controller";
+                label = "SPIM_FLASH_CTRL";
+                reg = <0x40000000 0x1000>;
+                /* interrupts = <3 0>; */
 
-    			#address-cells = <1>;
-    			#size-cells = <1>;
+                #address-cells = <1>;
+                #size-cells = <1>;
 
-    			spim_flash0: flash@0 {
-    				compatible = "soc-nv-flash";
-    				label = "FLASH_ESP32";
-    				reg = <0 0x400000>;
-    				erase-block-size = <4096>;
-    				write-block-size = <4>;
-    			};
-    		};
+                spim_flash0: spim_flash@0 {
+                    //compatible = "soc-nv-flash";// Not sure is a soc-nv-flash
+                    compatible = "serial-flash";// Not sure is a soc-nv-flash
+                    label = "FLASH_SPIM";
+                    reg = <0 0x400000>;
+                    erase-block-size = <4096>;
+                    write-block-size = <256>;
+                };
+            };
 
 
         };
@@ -234,7 +236,8 @@
 			reg = <0x40000000 0x80>;
 		};
 
-        /*
+
+
         spim: spim@40007000 {
     		compatible = "nuvoton,m48x-spim";
             reg = <0x40007000 0x1000>;
@@ -242,7 +245,7 @@
     		// erase-block-size = <4096>;
     		// write-block-size = <1>;
     	};
-        */
+
 
 
 	};

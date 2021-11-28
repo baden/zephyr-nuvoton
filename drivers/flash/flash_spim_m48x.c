@@ -7,7 +7,8 @@
 // TODO: We need use flash driver insteed spi
 
 #define DT_DRV_COMPAT nuvoton_m48x_spim_flash_controller
-#define SOC_NV_FLASH_NODE DT_INST(0, soc_nv_flash)
+//#define SOC_NV_FLASH_NODE DT_INST(0, soc_nv_flash)
+#define SOC_NV_FLASH_NODE DT_INST(0, serial_flash)
 
 #define FLASH_WRITE_BLK_SZ DT_PROP(SOC_NV_FLASH_NODE, write_block_size)
 #define FLASH_ERASE_BLK_SZ DT_PROP(SOC_NV_FLASH_NODE, erase_block_size)
@@ -42,29 +43,114 @@ static const struct flash_parameters flash_spim_parameters = {
 #define DEV_DATA(dev) ((struct flash_spim_dev_data *const)(dev)->data)
 #define DEV_CFG(dev) ((const struct flash_spim_dev_config *const)(dev)->config)
 
+static inline void flash_spim_sem_take(const struct device *dev)
+{
+	k_sem_take(&DEV_DATA(dev)->sem, K_FOREVER);
+}
+
+static inline void flash_spim_sem_give(const struct device *dev)
+{
+	k_sem_give(&DEV_DATA(dev)->sem);
+}
+
 
 static int flash_spim_read(const struct device *dev, off_t address, void *buffer, size_t length)
 {
 	// const struct flash_spim_dev_config *const cfg = DEV_CFG(dev);
-	LOG_ERR("TODO: flash_spim_read");
+	LOG_ERR("TODO: flash_spim_read (0x%08x)", address);
+
+	if (length == 0) {
+		return 0;
+	}
+	if (buffer == NULL /*|| address > chip_size || address + length > chip_size*/) {
+		return -EINVAL;
+	}
+
+	flash_spim_sem_take(dev);
+
+	SPIM_Enable_4Bytes_Mode(0, 1);
+    SPIM_SET_DCNUM(8);
+    // SPIM_SetQuadEnable(1, 1);    // For CMD_DMA_FAST_QUAD_READ
+    SPIM_SetQuadEnable(0, 1);    	// For CMD_DMA_FAST_READ, OPCODE_FAST_READ
+    SPIM_DMA_Read(address, 0, length, buffer, CMD_DMA_FAST_READ, 1);
+    // memset(buffer, 0, length);
+    // SPIM_IO_Read(address, 0, length, buffer, OPCODE_FAST_READ, 1, 1, 1, 1);
+
+	flash_spim_sem_give(dev);
 	return 0;
 }
 
-static int flash_spim_write(const struct device *dev,
-			     off_t address,
-			     const void *buffer,
-			     size_t length)
+static int flash_spim_write(const struct device *dev, off_t address, const void *buffer, size_t length)
 {
 	// const struct flash_spim_dev_config *const cfg = DEV_CFG(dev);
 	LOG_ERR("TODO: flash_spim_write");
+
+	if (length == 0) {
+		return 0;
+	}
+	/*
+	if (address + length > chip_size) {
+		return -EINVAL;
+	}
+	*/
+
+
+	flash_spim_sem_take(dev);
+
+	//
+	// SPIM_DMA_Write(address, 0, length, buffer, CMD_QUAD_PAGE_PROGRAM_WINBOND);
+
+	SPIM_DMA_Write(address, 0, length, buffer, CMD_NORMAL_PAGE_PROGRAM);
+    // SPIM_IO_Write(address, 0 /*USE_4_BYTES_MODE*/, length, buffer, OPCODE_PP, 1, 1, 1);
+
+	flash_spim_sem_give(dev);
 	return 0;
 }
+
+// Variants:
+#define _4K (4*1024)
+#define _32K (32*1024)
+#define _64K (64*1024)
+// SPIM_EraseBlock(alignAddr, 0, OPCODE_SE_4K, 1, 1);		// 4K
+// SPIM_EraseBlock(alignAddr, 0, OPCODE_BE_32K, 1, 1);		// 32K
+// SPIM_EraseBlock(alignAddr, 0, OPCODE_BE_64K, 1, 1);		// 64K
 
 static int flash_spim_erase(const struct device *dev, off_t start, size_t len)
 {
 	// uint32_t sector_size = DEV_CFG(dev)->chip->sector_size;
 	// uint32_t chip_size = DEV_CFG(dev)->chip->chip_size;
 	LOG_ERR("TODO: flash_spim_erase");
+
+	if (start % FLASH_ERASE_BLK_SZ != 0) {
+		LOG_ERR("Start must be aligned to 64K");
+		return -EINVAL;
+	}
+	if (len % FLASH_ERASE_BLK_SZ != 0) {
+		LOG_ERR("Length must be aligned to 64K");
+		return -EINVAL;
+	}
+	/*
+	if (len + start > chip_size) {
+		return -EINVAL;
+	}
+	*/
+
+	flash_spim_sem_take(dev);
+	while (len >= FLASH_ERASE_BLK_SZ) {
+		#if FLASH_ERASE_BLK_SZ == _64K
+			SPIM_EraseBlock(start, 0, OPCODE_BE_64K, 1, 1);
+		#elif FLASH_ERASE_BLK_SZ == _32K
+			SPIM_EraseBlock(start, 0, OPCODE_BE_32K, 1, 1);
+		#elif FLASH_ERASE_BLK_SZ == _4K
+			SPIM_EraseBlock(start, 0, OPCODE_SE_4K, 1, 1);
+		#else
+			#error  FLASH_ERASE_BLK_SZ must be 4K, 32K or 64K
+		#endif
+		start += FLASH_ERASE_BLK_SZ;
+		len -= FLASH_ERASE_BLK_SZ;
+	}
+	SPIM_INVALID_CACHE();
+	flash_spim_sem_give(dev);
 	return 0;
 }
 
@@ -91,103 +177,14 @@ static const struct flash_parameters *flash_spim_get_parameters(const struct dev
 }
 
 
-
 static int flash_spim_init(const struct device *dev)
 {
 	struct flash_spim_dev_data *const dev_data = DEV_DATA(dev);
-	LOG_ERR("TODO: flash_spim_init");
-	return 0;
-}
+	LOG_ERR("TODO: flash_spim_init(%p)", dev);
+	LOG_ERR("FLASH_WRITE_BLK_SZ = %d", FLASH_WRITE_BLK_SZ);
+	LOG_ERR("FLASH_ERASE_BLK_SZ = %d", FLASH_ERASE_BLK_SZ);
 
 
-static const struct flash_driver_api flash_spim_driver_api = {
-	.read = flash_spim_read,
-	.write = flash_spim_write,
-	.erase = flash_spim_erase,
-	.get_parameters = flash_spim_get_parameters,
-#ifdef CONFIG_FLASH_PAGE_LAYOUT
-	.page_layout = flash_spim_page_layout,
-#endif
-};
-
-
-static struct flash_spim_dev_data flash_spim_data;
-
-static const struct flash_spim_dev_config flash_spim_config = {
-	.controller = (SPIM_T *) DT_INST_REG_ADDR(0),
-	// .chip = &esp_flashchip_info
-};
-
-
-DEVICE_DT_INST_DEFINE(0, flash_spim_init,
-		      NULL,
-		      &flash_spim_data, &flash_spim_config,
-		      POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEVICE,
-		      &flash_spim_driver_api);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#if 0	// Old
-
-#define LOG_LEVEL CONFIG_SPI_LOG_LEVEL
-#include <logging/log.h>
-LOG_MODULE_REGISTER(spim_m48x);
-
-#include <device.h>
-#include <drivers/spi.h>
-#include <soc.h>
-#include "spi_context.h"
-
-
-/* Device constant configuration parameters */
-struct spim_config {
-	SPIM_T *regs;
-};
-
-/* Device run time data */
-struct spim_data {
-	struct spi_context ctx;
-};
-
-
-static int transceive_sync(const struct device *dev,
-				 const struct spi_config *config,
-				 const struct spi_buf_set *tx_bufs,
-				 const struct spi_buf_set *rx_bufs)
-{
-	// const struct spi_qmspi_config *cfg = dev->config;
-	// struct spi_qmspi_data *data = dev->data;
-	// SPIM_T *regs = cfg->regs;
-	LOG_ERR("TODO: transceive_sync");
-	// return qmspi_transceive(dev, config, tx_bufs, rx_bufs);
-	return 0;
-}
-
-static int release(const struct device *dev,
-			 const struct spi_config *config)
-{
-	struct spim_data *data = dev->data;
-	// const struct spi_qmspi_config *cfg = dev->config;
-	// SPIM_T *regs = cfg->regs;
-	LOG_ERR("TODO: release");
-	spi_context_unlock_unconditionally(&data->ctx);
-	return 0;
-}
-
-static int spim_init(const struct device *dev)
-{
 	int err;
 	const struct spim_config *cfg = dev->config;
 	struct spim_data *data = dev->data;
@@ -269,38 +266,35 @@ static int spim_init(const struct device *dev)
     // idBuf[1] - Memory Type (ID15-ID8)
     // idBuf[2] - Capacity (ID7-ID0)
 
-    // printf("printf is worked?\n");
-
     SPIM_Enable_4Bytes_Mode(0, 1);
 
-	spi_context_unlock_unconditionally(&data->ctx);
+	k_sem_init(&dev_data->sem, 1, 1);
 
 	return 0;
 }
 
-static const struct spi_driver_api spim_driver_api = {
-	.transceive = transceive_sync,
-	#ifdef CONFIG_SPI_ASYNC
-		.transceive_async = transceive_async,
-	#endif
-	.release = release,
-};
 
-
-#if DT_NODE_HAS_STATUS(DT_INST(0, nuvoton_m48x_spim), okay)
-
-static const struct spim_config spim_0_config = {
-	.regs = (SPIM_T *)DT_INST_REG_ADDR(0),
-};
-
-static struct spim_data spim_0_dev_data = {
-};
-
-DEVICE_DT_INST_DEFINE(0,
-		    &spim_init, NULL, &spim_0_dev_data,
-		    &spim_0_config, POST_KERNEL,
-		    CONFIG_SPI_INIT_PRIORITY, &spim_driver_api);
-
-
+static const struct flash_driver_api flash_spim_driver_api = {
+	.read = flash_spim_read,
+	.write = flash_spim_write,
+	.erase = flash_spim_erase,
+	.get_parameters = flash_spim_get_parameters,
+#ifdef CONFIG_FLASH_PAGE_LAYOUT
+	.page_layout = flash_spim_page_layout,
 #endif
-#endif // Old
+};
+
+
+static struct flash_spim_dev_data flash_spim_data;
+
+static const struct flash_spim_dev_config flash_spim_config = {
+	.controller = (SPIM_T *) DT_INST_REG_ADDR(0),
+	// .chip = &esp_flashchip_info
+};
+
+
+DEVICE_DT_INST_DEFINE(0, flash_spim_init,
+		      NULL,
+		      &flash_spim_data, &flash_spim_config,
+		      POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEVICE,
+		      &flash_spim_driver_api);

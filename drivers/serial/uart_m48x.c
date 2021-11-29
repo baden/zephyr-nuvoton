@@ -241,11 +241,13 @@ static int uart_numicro_config_get(const struct device *dev,
 	return bytes_read;
 }
 
+#ifdef CONFIG_UART_INTERRUPT_DRIVEN
 static void usart_m48x_irq_tx_enable(const struct device *dev)
 {
 	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
 	UART_ENABLE_INT(uart, UART_INTEN_THREIEN_Msk);
 }
+#endif
 
 /*static*/ void usart_m48x_irq_tx_disable(const struct device *dev)
 {
@@ -261,6 +263,7 @@ static void usart_m48x_irq_tx_enable(const struct device *dev)
 // #define UART_GET_TX_FULL(uart)    ((uart)->FIFOSTS & UART_FIFOSTS_TXFULL_Msk)
 
 
+#ifdef CONFIG_UART_INTERRUPT_DRIVEN
 static int usart_m48x_irq_tx_ready(const struct device *dev)
 {
 	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
@@ -269,6 +272,7 @@ static int usart_m48x_irq_tx_ready(const struct device *dev)
 	return !UART_GET_TX_FULL(uart);
 	// return (usart->US_CSR & US_CSR_TXRDY);
 }
+#endif
 
 /*static*/ void usart_m48x_irq_rx_enable(const struct device *dev)
 {
@@ -282,6 +286,7 @@ static int usart_m48x_irq_tx_ready(const struct device *dev)
 	UART_DISABLE_INT(uart, (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk));
 }
 
+#ifdef CONFIG_UART_INTERRUPT_DRIVEN
 static int usart_m48x_irq_tx_complete(const struct device *dev)
 {
 	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
@@ -289,6 +294,7 @@ static int usart_m48x_irq_tx_complete(const struct device *dev)
 	// >=1 Tx FIFO is empty
 	return UART_GET_TX_EMPTY(uart);
 }
+#endif
 
 /*static*/ int usart_m48x_irq_rx_ready(const struct device *dev)
 {
@@ -299,6 +305,7 @@ static int usart_m48x_irq_tx_complete(const struct device *dev)
 	// return (usart->US_CSR & US_CSR_RXRDY);
 }
 
+#ifdef CONFIG_UART_INTERRUPT_DRIVEN
 static void usart_m48x_irq_err_enable(const struct device *dev)
 {
 	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
@@ -307,7 +314,9 @@ static void usart_m48x_irq_err_enable(const struct device *dev)
 	UART_ENABLE_INT(uart, (UART_INTEN_RXTOIEN_Msk));
 	// usart->US_IER = US_IER_OVRE | US_IER_FRAME | US_IER_PARE;
 }
+#endif
 
+#ifdef CONFIG_UART_INTERRUPT_DRIVEN
 static void usart_m48x_irq_err_disable(const struct device *dev)
 {
 	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
@@ -316,9 +325,11 @@ static void usart_m48x_irq_err_disable(const struct device *dev)
 	UART_DISABLE_INT(uart, (UART_INTEN_RXTOIEN_Msk));
 	// usart->US_IDR = US_IDR_OVRE | US_IDR_FRAME | US_IDR_PARE;
 }
+#endif
 
 // TODO: Do we need check INTEN bits here?
 // If i clearly understand, RDAINT flag is set, when RDAIEN and RDAIF are both set to 1
+#ifdef CONFIG_UART_INTERRUPT_DRIVEN
 static int usart_m48x_irq_is_pending(const struct device *dev)
 {
 	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
@@ -332,9 +343,11 @@ static int usart_m48x_irq_is_pending(const struct device *dev)
 	// return (usart->US_IMR & (US_IMR_TXRDY | US_IMR_RXRDY)) &
 	// 	(usart->US_CSR & (US_CSR_TXRDY | US_CSR_RXRDY));
 }
+#endif
 
 /*static*/ int usart_m48x_irq_update(const struct device *dev)
 {
+	// TODO: Move this to post of usart_m48x_isr after resroting usart_m48x_irq_callback_
 	// ARG_UNUSED(dev);
 	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
 
@@ -346,19 +359,22 @@ static int usart_m48x_irq_is_pending(const struct device *dev)
 	return 1;
 }
 
+#ifdef CONFIG_UART_INTERRUPT_DRIVEN
 static void usart_m48x_irq_callback_set(const struct device *dev,
 				       uart_irq_callback_user_data_t cb,
 				       void *cb_data)
 {
-	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
-	LOG_DBG("Set isr callback %p and data %p for %s", cb, cb_data, dev->name);
+//	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
 	struct uart_numicro_data *dev_data = DRV_DATA(dev);
+	LOG_DBG("Set isr callback %p and data %p for %s", cb, cb_data, dev->name);
 
 	dev_data->irq_cb = cb;
 	dev_data->irq_cb_data = cb_data;
 
 }
+#endif
 
+#ifdef CONFIG_UART_INTERRUPT_DRIVEN
 static void usart_m48x_isr(const struct device *dev)
 {
 	// /*volatile*/ UART_T* uart = UART_STRUCT(dev);
@@ -369,6 +385,7 @@ static void usart_m48x_isr(const struct device *dev)
 		dev_data->irq_cb(dev, dev_data->irq_cb_data);
 	}
 }
+#endif
 
 #endif
 

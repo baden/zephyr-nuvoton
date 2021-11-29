@@ -50,7 +50,7 @@ static int pinmux_m48x_input(const struct device *dev, uint32_t pin, uint8_t fun
 static int pinmux_m48x_init(const struct device *dev)
 {
 	/* Nothing to do. */
-	const struct pinmux_m48x_config *cfg = dev->config;
+	// const struct pinmux_m48x_config *cfg = dev->config;
 	// LOG_DBG("init regs=%08X", (unsigned)cfg->regs);
 	// LOG_DBG("SYS_BASE=%08X", (unsigned)SYS_BASE);
 	// LOG_DBG("SYS=%08X", (unsigned)SYS);

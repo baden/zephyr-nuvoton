@@ -142,9 +142,9 @@ static void gpio_m48x_isr(const struct device *dev)
 	int_stat = regs->INTSRC;
 	// GPIO_CLR_INT_FLAG(PD, BIT(12));
 	// Write it back for clearing interrupt
-	PD->INTSRC = int_stat;
+	regs->INTSRC = int_stat;
 
-	// printk("%p:0x%02X", dev, int_stat);
+	// printk(":%p:0x%08X", dev, int_stat);
 
 	// gpio_fire_callbacks(&data->cb, data->dev, pins);
 	gpio_fire_callbacks(&context->cb, dev, int_stat);

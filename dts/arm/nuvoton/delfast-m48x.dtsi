@@ -66,6 +66,7 @@
             peripheral-id = <0>;
 			status = "disabled";
 			label = "UART_0";
+            interrupts = <36 0>; // UART0_IRQn
 		};
 
 		uart1: serial@40071000 {
@@ -74,6 +75,7 @@
             peripheral-id = <1>;
 			status = "disabled";
 			label = "UART_1";
+            interrupts = <37 0>; // UART1_IRQn
 		};
 
 		uart2: serial@40072000 {
@@ -82,6 +84,7 @@
             peripheral-id = <2>;
 			status = "disabled";
 			label = "UART_2";
+            interrupts = <48 0>; // UART2_IRQn
 		};
 
 		uart3: serial@40073000 {
@@ -90,6 +93,7 @@
             peripheral-id = <3>;
 			status = "disabled";
 			label = "UART_3";
+            interrupts = <49 0>; // UART3_IRQn
 		};
 
 		uart4: serial@40074000 {
@@ -98,6 +102,7 @@
             peripheral-id = <4>;
 			status = "disabled";
 			label = "UART_4";
+            interrupts = <74 0>; // UART4_IRQn
 		};
 
 		uart5: serial@40075000 {
@@ -106,6 +111,7 @@
             peripheral-id = <5>;
 			status = "disabled";
 			label = "UART_5";
+            interrupts = <75 0>; // UART5_IRQn
 		};
         /*
 		uart6: serial@40076000 {

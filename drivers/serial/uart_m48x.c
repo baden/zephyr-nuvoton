@@ -30,7 +30,7 @@ LOG_MODULE_REGISTER(uart_numicro);
 struct uart_numicro_config {
 	struct uart_device_config devcfg;
 	uint32_t idx;				// TODO: Not ideal solution
-	#ifdef CONFIG_UART_INTERRUPT_DRIVEN
+	#if 1 //def CONFIG_UART_INTERRUPT_DRIVEN
 		uart_irq_config_func_t	irq_config_func;
 	#endif
 };
@@ -349,18 +349,18 @@ static int usart_m48x_irq_is_pending(const struct device *dev)
 {
 	// TODO: Move this to post of usart_m48x_isr after resroting usart_m48x_irq_callback_
 	// ARG_UNUSED(dev);
-	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
-
-	if(uart->FIFOSTS & (UART_FIFOSTS_BIF_Msk | UART_FIFOSTS_FEF_Msk | UART_FIFOSTS_PEF_Msk | UART_FIFOSTS_RXOVIF_Msk))
-    {
-        uart->FIFOSTS = (UART_FIFOSTS_BIF_Msk | UART_FIFOSTS_FEF_Msk | UART_FIFOSTS_PEF_Msk | UART_FIFOSTS_RXOVIF_Msk);
-    }
+	// /*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	//
+	// if(uart->FIFOSTS & (UART_FIFOSTS_BIF_Msk | UART_FIFOSTS_FEF_Msk | UART_FIFOSTS_PEF_Msk | UART_FIFOSTS_RXOVIF_Msk))
+    // {
+    //     uart->FIFOSTS = (UART_FIFOSTS_BIF_Msk | UART_FIFOSTS_FEF_Msk | UART_FIFOSTS_PEF_Msk | UART_FIFOSTS_RXOVIF_Msk);
+    // }
 
 	return 1;
 }
 
-#ifdef CONFIG_UART_INTERRUPT_DRIVEN
-static void usart_m48x_irq_callback_set(const struct device *dev,
+#if 1 //def CONFIG_UART_INTERRUPT_DRIVEN
+/*static */void usart_m48x_irq_callback_set(const struct device *dev,
 				       uart_irq_callback_user_data_t cb,
 				       void *cb_data)
 {
@@ -374,16 +374,22 @@ static void usart_m48x_irq_callback_set(const struct device *dev,
 }
 #endif
 
-#ifdef CONFIG_UART_INTERRUPT_DRIVEN
+#if 1 //def CONFIG_UART_INTERRUPT_DRIVEN
 static void usart_m48x_isr(const struct device *dev)
 {
-	// /*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
 	struct uart_numicro_data *dev_data = DRV_DATA(dev);
 	PE12 ^= 1;
 
 	if (dev_data->irq_cb) {
 		dev_data->irq_cb(dev, dev_data->irq_cb_data);
 	}
+
+	if(uart->FIFOSTS & (UART_FIFOSTS_BIF_Msk | UART_FIFOSTS_FEF_Msk | UART_FIFOSTS_PEF_Msk | UART_FIFOSTS_RXOVIF_Msk))
+    {
+        uart->FIFOSTS = (UART_FIFOSTS_BIF_Msk | UART_FIFOSTS_FEF_Msk | UART_FIFOSTS_PEF_Msk | UART_FIFOSTS_RXOVIF_Msk);
+    }
+
 }
 #endif
 
@@ -489,7 +495,7 @@ static void usart_m48x_isr(const struct device *dev)
 
 // _GPDT_N_NODELABEL_uartuart3_P_tx_port_STRING_TOKEN_MFPDT_N_NODELABEL_uartuart3_P_tx_pin_STRING_TOKEN
 
-#define FIND_A_BUG() {GPIO_SetMode(PE, BIT(12), GPIO_MODE_OUTPUT); PE12 = 0;}
+#define FIND_A_BUG() //{GPIO_SetMode(PE, BIT(12), GPIO_MODE_OUTPUT); PE12 = 0;}
 
 static int uart_numicro_init(const struct device *dev)
 {
@@ -498,7 +504,7 @@ static int uart_numicro_init(const struct device *dev)
 
 	FIND_A_BUG();
 
-	// LOG_INF("UART device init (%d, TX:%s, RX:%s)", config->idx, "TBD", "TBD");
+	LOG_INF("UART device init (%d, TX:%s, RX:%s)", config->idx, "TBD", "TBD");
 
 	// const char *nl = DT_STRING_TOKEN(DT_NODELABEL(uart0), pins);
 	// SYS->GPB_MFPH
@@ -568,7 +574,7 @@ static int uart_numicro_init(const struct device *dev)
 
 	SYS_LockReg();
 
-	#ifdef CONFIG_UART_INTERRUPT_DRIVEN
+	#if 1 //def CONFIG_UART_INTERRUPT_DRIVEN
 		config->irq_config_func(dev);
 	#endif
 
@@ -603,6 +609,27 @@ static const struct uart_driver_api uart_numicro_driver_api = {
 #endif	/* CONFIG_UART_INTERRUPT_DRIVEN */
 };
 
+// ISR_DIRECT_DECLARE(UART3_IRQHandler)
+// {
+// 	modem_iface_uart_isr(uart_dev, NULL);
+// 	return 0;
+// }
+
+/*
+ISR_DIRECT_DECLARE(UART0_IRQHandler)
+{
+	usart_m48x_isr(DEVICE_DT_GET(DT_NODELABEL(uart0)));
+	// usart_m48x_isr(DEVICE_DT_GET(DT_ALIAS(uart0)));
+}
+
+static void usart0_m48x_irq_config_func(const struct device *port)
+{
+	IRQ_DIRECT_CONNECT(UART0_IRQn, 0, UART0_IRQHandler, IS_ENABLED(CONFIG_ZERO_LATENCY_IRQS) ? IRQ_ZERO_LATENCY : 0);
+	irq_enable(UART0_IRQn);
+	irq_enable(DT_INST_IRQN(0));
+}
+*/
+
 /*
 static void usart0_m48x_irq_config_func(const struct device *port)
 {
@@ -614,10 +641,11 @@ static void usart0_m48x_irq_config_func(const struct device *port)
 }
 */
 
+
 // #define _UART_RST(n) UART#n#_RST
 // #define UART_RST(n) _UART_RST(n)
 
-#ifdef CONFIG_UART_INTERRUPT_DRIVEN
+#if 1 // def CONFIG_UART_INTERRUPT_DRIVEN
 #define USART_M48X_CONFIG_FUNC(n)											\
 	static void usart##n##_m48x_irq_config_func(const struct device *port)	\
 	{																		\
@@ -640,8 +668,8 @@ static void usart0_m48x_irq_config_func(const struct device *port)
 	USART_M48X_DECLARE_CFG(n, USART_M48X_IRQ_CFG_FUNC_INIT)
 #endif
 
-
 #define NUMICRO_INIT(index)													\
+	USART_M48X_CONFIG_FUNC(index)											\
 																			\
 	static const struct uart_numicro_config uart_numicro_cfg_##index = {	\
 		.devcfg = {															\
@@ -649,6 +677,7 @@ static void usart0_m48x_irq_config_func(const struct device *port)
 		},																	\
 																			\
 		.idx = DT_INST_PROP(index, peripheral_id),							\
+		USART_M48X_IRQ_CFG_FUNC_INIT(index)								\
 	};																		\
 																			\
 	static struct uart_numicro_data uart_numicro_data_##index = {			\
@@ -665,9 +694,7 @@ static void usart0_m48x_irq_config_func(const struct device *port)
 			    PRE_KERNEL_1, CONFIG_KERNEL_INIT_PRIORITY_DEVICE,			\
 			    &uart_numicro_driver_api);									\
 
-				// USART_M48X_CONFIG_FUNC(index)
-				//
-				// USART_M48X_INIT_CFG(index);
+//				USART_M48X_INIT_CFG(index);
 
 DT_INST_FOREACH_STATUS_OKAY(NUMICRO_INIT)
 

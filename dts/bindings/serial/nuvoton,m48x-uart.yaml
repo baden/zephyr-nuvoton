@@ -8,6 +8,9 @@ properties:
     reg:
       required: true
 
+    interrupts:
+      required: true
+
     peripheral-id:
         type: int
         description: peripheral ID (0..7)

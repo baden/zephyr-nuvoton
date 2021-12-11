@@ -155,8 +155,11 @@ static int uart_numicro_configure(const struct device *dev,
 				  const struct uart_config *cfg)
 {
 	struct uart_numicro_data *ddata = DRV_DATA(dev);
+	UART_T* uart = UART_STRUCT(dev);
 	int32_t databits, stopbits;
 	uint32_t parity;
+
+	LOG_ERR("TODO: Change UART config(before)");
 
 	databits = uart_numicro_convert_datalen(cfg->data_bits);
 	if (databits < 0) {
@@ -169,16 +172,18 @@ static int uart_numicro_configure(const struct device *dev,
 	}
 
 	if (cfg->flow_ctrl == UART_CFG_FLOW_CTRL_NONE) {
-		UART_DisableFlowCtrl(UART_STRUCT(dev));
+		UART_DisableFlowCtrl(uart);
 	} else if (cfg->flow_ctrl == UART_CFG_FLOW_CTRL_RTS_CTS) {
-		UART_EnableFlowCtrl(UART_STRUCT(dev));
+		UART_EnableFlowCtrl(uart);
 	} else {
 		return -ENOTSUP;
 	}
 
 	parity = uart_numicro_convert_parity(cfg->parity);
 
-	UART_SetLineConfig(UART_STRUCT(dev), cfg->baudrate, databits,
+	LOG_ERR("TODO: Change UART config");
+
+	UART_SetLineConfig(uart, cfg->baudrate, databits,
 			   parity, stopbits);
 
 	memcpy(&ddata->ucfg, cfg, sizeof(*cfg));
@@ -379,7 +384,6 @@ static void usart_m48x_isr(const struct device *dev)
 {
 	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
 	struct uart_numicro_data *dev_data = DRV_DATA(dev);
-	PE12 ^= 1;
 
 	if (dev_data->irq_cb) {
 		dev_data->irq_cb(dev, dev_data->irq_cb_data);
@@ -387,6 +391,7 @@ static void usart_m48x_isr(const struct device *dev)
 
 	if(uart->FIFOSTS & (UART_FIFOSTS_BIF_Msk | UART_FIFOSTS_FEF_Msk | UART_FIFOSTS_PEF_Msk | UART_FIFOSTS_RXOVIF_Msk))
     {
+		PE12 ^= 1;
         uart->FIFOSTS = (UART_FIFOSTS_BIF_Msk | UART_FIFOSTS_FEF_Msk | UART_FIFOSTS_PEF_Msk | UART_FIFOSTS_RXOVIF_Msk);
     }
 

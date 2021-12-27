@@ -3,4 +3,4 @@
 # Copyright (c) 2020 Linumiz
 # Author: Saravanan Sekar <saravanan@linumiz.com>
 
-source "soc/arm/nuvoton_m48x/*/Kconfig.series"
+rsource "*/Kconfig.series"

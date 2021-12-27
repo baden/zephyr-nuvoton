@@ -391,7 +391,7 @@ static void usart_m48x_isr(const struct device *dev)
 
 	if(uart->FIFOSTS & (UART_FIFOSTS_BIF_Msk | UART_FIFOSTS_FEF_Msk | UART_FIFOSTS_PEF_Msk | UART_FIFOSTS_RXOVIF_Msk))
     {
-		PE12 ^= 1;
+		// PE12 ^= 1;
         uart->FIFOSTS = (UART_FIFOSTS_BIF_Msk | UART_FIFOSTS_FEF_Msk | UART_FIFOSTS_PEF_Msk | UART_FIFOSTS_RXOVIF_Msk);
     }
 
@@ -537,30 +537,37 @@ static int uart_numicro_init(const struct device *dev)
 	// TODO: Temporrary solution!!!!
 	switch(config->idx) {
 		case 0: // UART0
-			CLK_SetModuleClock(UART0_MODULE, CLK_CLKSEL1_UART0SEL_PLL, CLK_CLKDIV0_UART0(0));	/* Select UART0 clock source is PLL */
+			// CLK_SetModuleClock(UART0_MODULE, CLK_CLKSEL1_UART0SEL_PLL, CLK_CLKDIV0_UART0(0));	/* Select UART0 clock source is PLL */
+			CLK_SetModuleClock(UART0_MODULE, CLK_CLKSEL1_UART0SEL_HXT, CLK_CLKDIV0_UART0(1));	/* Select UART clock source from HXT */
+
 			MuxUartPort(0);
 			break;
 		case 1: // UART1
-			CLK_SetModuleClock(UART1_MODULE, CLK_CLKSEL1_UART1SEL_PLL, CLK_CLKDIV0_UART1(0));	// Select UART1 clock source is PLL
+			// CLK_SetModuleClock(UART1_MODULE, CLK_CLKSEL1_UART1SEL_PLL, CLK_CLKDIV0_UART1(0));	// Select UART1 clock source is PLL
+			CLK_SetModuleClock(UART1_MODULE, CLK_CLKSEL1_UART1SEL_HXT, CLK_CLKDIV0_UART1(1));	/* Select UART clock source from HXT */
 			MuxUartPort(1);
 			break;
 		case 2: // UART2
-			CLK_SetModuleClock(UART2_MODULE, CLK_CLKSEL3_UART2SEL_PLL, CLK_CLKDIV4_UART2(0));	// Select UART1 clock source is PLL
+			// CLK_SetModuleClock(UART2_MODULE, CLK_CLKSEL3_UART2SEL_PLL, CLK_CLKDIV4_UART2(0));	// Select UART1 clock source is PLL
+			CLK_SetModuleClock(UART2_MODULE, CLK_CLKSEL3_UART2SEL_HXT, CLK_CLKDIV4_UART2(1));	/* Select UART clock source from HXT */
 			MuxUartPort(2);
 			break;
 		case 3: // UART3
 			// UART3: PC-001
-			CLK_SetModuleClock(UART3_MODULE, CLK_CLKSEL3_UART3SEL_PLL, CLK_CLKDIV4_UART3(0));	// Select UART3 clock source is PLL
+			// CLK_SetModuleClock(UART3_MODULE, CLK_CLKSEL3_UART3SEL_PLL, CLK_CLKDIV4_UART3(0));	// Select UART3 clock source is PLL
+			CLK_SetModuleClock(UART3_MODULE, CLK_CLKSEL3_UART3SEL_HXT, CLK_CLKDIV4_UART3(1));	/* Select UART clock source from HXT */
    			MuxUartPort(3);
 			break;
 		case 4: // UART4
-			// UART3: PC-001
-			CLK_SetModuleClock(UART4_MODULE, CLK_CLKSEL3_UART4SEL_PLL, CLK_CLKDIV4_UART4(0));	// Select UART4 clock source is PLL
+			// UART4: PC-001
+			// CLK_SetModuleClock(UART4_MODULE, CLK_CLKSEL3_UART4SEL_PLL, CLK_CLKDIV4_UART4(0));	// Select UART4 clock source is PLL
+			CLK_SetModuleClock(UART4_MODULE, CLK_CLKSEL3_UART4SEL_HXT, CLK_CLKDIV4_UART4(1));	/* Select UART clock source from HXT */
 			MuxUartPort(4);
 			break;
 		case 5: // UART5
 			// UART5: PC-001
-			CLK_SetModuleClock(UART5_MODULE, CLK_CLKSEL3_UART5SEL_PLL, CLK_CLKDIV4_UART5(0));	// Select UART5 clock source is PLL
+			// CLK_SetModuleClock(UART5_MODULE, CLK_CLKSEL3_UART5SEL_PLL, CLK_CLKDIV4_UART5(0));	// Select UART5 clock source is PLL
+			CLK_SetModuleClock(UART5_MODULE, CLK_CLKSEL3_UART5SEL_HXT, CLK_CLKDIV4_UART5(1));	/* Select UART clock source from HXT */
 			MuxUartPort(5);
 			break;
 

@@ -7,6 +7,7 @@
 #include <arm/armv7-m.dtsi>
 #include <mem.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <arm/nuvoton/m48x_crypt.dtsi>
 
 / {
 	cpus {

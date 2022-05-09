@@ -7,7 +7,7 @@
 
  // look zephyr/drivers/serial/usart_sam.c for inspiration
 
-#include <drivers/uart.h>
+#include <zephyr/drivers/uart.h>
 #include <NuMicro.h>
 #include <string.h>
 
@@ -17,23 +17,34 @@
 #include <logging/log.h>
 LOG_MODULE_REGISTER(uart_numicro);
 
-/* Device data structure */
-#define DEV_CFG(dev)						\
-	((const struct uart_numicro_config * const)(dev)->config)
-
-#define DRV_DATA(dev)						\
-	((struct uart_numicro_data * const)(dev)->data)
-
-#define UART_STRUCT(dev)					\
-	((UART_T *)(DEV_CFG(dev))->devcfg.base)
+// /* Device data structure */
+// #define DEV_CFG(dev)						\
+// 	((const struct uart_numicro_config * const)(dev)->config)
+//
+// #define DRV_DATA(dev)						\
+// 	((struct uart_numicro_data * const)(dev)->data)
+//
+// #define UART_STRUCT(dev)					\
+// 	((UART_T *)(DEV_CFG(dev))->devcfg.base)
 
 struct uart_numicro_config {
-	struct uart_device_config devcfg;
-	uint32_t idx;				// TODO: Not ideal solution
+	uint8_t* base;			// TODO: Remove me. For debug only
+	uint32_t idx;			// TODO: Romove me after refactoring.
+	UART_T* uart;
+	uint32_t id_rst;
+	uint32_t id_clk;
 	#if 1 //def CONFIG_UART_INTERRUPT_DRIVEN
 		uart_irq_config_func_t	irq_config_func;
 	#endif
 };
+
+// struct uart_numicro_config {
+// 	struct uart_device_config devcfg;
+// 	uint32_t idx;				// TODO: Not ideal solution
+// 	#if 1 //def CONFIG_UART_INTERRUPT_DRIVEN
+// 		uart_irq_config_func_t	irq_config_func;
+// 	#endif
+// };
 
 struct uart_numicro_data {
 	const struct device *clock;
@@ -73,29 +84,42 @@ static inline uint32_t uart_module(const uint32_t periph_id)
 	return UART0_MODULE;
 }
 
-
 static int uart_numicro_poll_in(const struct device *dev, unsigned char *c)
 {
-	// uint32_t count;
-	UART_T* uart = UART_STRUCT(dev);
+	const struct uart_numicro_config *config = dev->config;
+	uint32_t count;
 
-	if(uart->FIFOSTS & UART_FIFOSTS_RXEMPTY_Msk) return -EBUSY;
-	// Maybe need use UART_READ(uart) macro?
-	*c = (unsigned char)uart->DAT;
+	count = UART_Read(config->uart, c, 1);
+	if (!count) {
+		return -1;
+	}
 
 	return 0;
+
+	// // uint32_t count;
+	// UART_T* uart = UART_STRUCT(dev);
+	//
+	// if(uart->FIFOSTS & UART_FIFOSTS_RXEMPTY_Msk) return -EBUSY;
+	// // Maybe need use UART_READ(uart) macro?
+	// *c = (unsigned char)uart->DAT;
+	//
+	// return 0;
 }
 
 static void uart_numicro_poll_out(const struct device *dev, unsigned char c)
 {
-	// UART_Write(UART_STRUCT(dev), &c, 1);
-	UART_T* uart = UART_STRUCT(dev);
-	/* Wait for transmitter to be ready */
-	// Maybe need use UART_GET_TX_FULL(uart) macro
-	while(uart->FIFOSTS & UART_FIFOSTS_TXFULL_Msk) {
-	}
-	// Maybe need use UART_WRITE(uart, c) macro
-	uart->DAT = c;
+	const struct uart_numicro_config *config = dev->config;
+
+	UART_Write(config->uart, &c, 1);
+
+	// // UART_Write(UART_STRUCT(dev), &c, 1);
+	// UART_T* uart = UART_STRUCT(dev);
+	// /* Wait for transmitter to be ready */
+	// // Maybe need use UART_GET_TX_FULL(uart) macro
+	// while(uart->FIFOSTS & UART_FIFOSTS_TXFULL_Msk) {
+	// }
+	// // Maybe need use UART_WRITE(uart, c) macro
+	// uart->DAT = c;
 }
 
 static int uart_numicro_err_check(const struct device *dev)
@@ -154,12 +178,10 @@ static inline uint32_t uart_numicro_convert_parity(enum uart_config_parity parit
 static int uart_numicro_configure(const struct device *dev,
 				  const struct uart_config *cfg)
 {
-	struct uart_numicro_data *ddata = DRV_DATA(dev);
-	UART_T* uart = UART_STRUCT(dev);
+	const struct uart_numicro_config *config = dev->config;
+	struct uart_numicro_data *ddata = dev->data;
 	int32_t databits, stopbits;
 	uint32_t parity;
-
-	LOG_ERR("TODO: Change UART config(before)");
 
 	databits = uart_numicro_convert_datalen(cfg->data_bits);
 	if (databits < 0) {
@@ -172,19 +194,17 @@ static int uart_numicro_configure(const struct device *dev,
 	}
 
 	if (cfg->flow_ctrl == UART_CFG_FLOW_CTRL_NONE) {
-		UART_DisableFlowCtrl(uart);
+		UART_DisableFlowCtrl(config->uart);
 	} else if (cfg->flow_ctrl == UART_CFG_FLOW_CTRL_RTS_CTS) {
-		UART_EnableFlowCtrl(uart);
+		UART_EnableFlowCtrl(config->uart);
 	} else {
 		return -ENOTSUP;
 	}
 
 	parity = uart_numicro_convert_parity(cfg->parity);
 
-	LOG_ERR("TODO: Change UART config");
-
-	UART_SetLineConfig(uart, cfg->baudrate, databits,
-			   parity, stopbits);
+	UART_SetLineConfig(config->uart, cfg->baudrate, databits, parity,
+			   stopbits);
 
 	memcpy(&ddata->ucfg, cfg, sizeof(*cfg));
 
@@ -194,7 +214,7 @@ static int uart_numicro_configure(const struct device *dev,
 static int uart_numicro_config_get(const struct device *dev,
 				   struct uart_config *cfg)
 {
-	struct uart_numicro_data *ddata = DRV_DATA(dev);
+	struct uart_numicro_data *ddata = dev->data;
 
 	memcpy(cfg, &ddata->ucfg, sizeof(*cfg));
 
@@ -209,7 +229,10 @@ static int uart_numicro_config_get(const struct device *dev,
 			       const uint8_t *tx_data,
 			       int size)
 {
-	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	// /*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	const struct uart_numicro_config *config = dev->config;
+	UART_T* uart = config->uart;
+
 
 	/* Wait for transmitter to be ready. */
 	while(UART_IS_TX_FULL(uart));  /* Wait Tx is not full to transmit data */
@@ -223,7 +246,9 @@ static int uart_numicro_config_get(const struct device *dev,
 
 /*static*/ int usart_m48x_fifo_read(const struct device *dev, uint8_t *rx_data, const int size)
 {
-	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	// /*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	const struct uart_numicro_config *config = dev->config;
+	UART_T* uart = config->uart;
 	int bytes_read;
 
 	bytes_read = 0;
@@ -249,14 +274,18 @@ static int uart_numicro_config_get(const struct device *dev,
 #ifdef CONFIG_UART_INTERRUPT_DRIVEN
 static void usart_m48x_irq_tx_enable(const struct device *dev)
 {
-	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	// /*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	const struct uart_numicro_config *config = dev->config;
+	UART_T* uart = config->uart;
 	UART_ENABLE_INT(uart, UART_INTEN_THREIEN_Msk);
 }
 #endif
 
 /*static*/ void usart_m48x_irq_tx_disable(const struct device *dev)
 {
-	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	// /*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	const struct uart_numicro_config *config = dev->config;
+	UART_T* uart = config->uart;
 	UART_DISABLE_INT(uart, UART_INTEN_THREIEN_Msk);
 }
 
@@ -271,7 +300,9 @@ static void usart_m48x_irq_tx_enable(const struct device *dev)
 #ifdef CONFIG_UART_INTERRUPT_DRIVEN
 static int usart_m48x_irq_tx_ready(const struct device *dev)
 {
-	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	// /*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	const struct uart_numicro_config *config = dev->config;
+	UART_T* uart = config->uart;
 	// UART_GET_TX_FULL()=0   	Tx FIFO is not full.
 	// UART_GET_TX_FULL()=1		Tx FIFO is full.
 	return !UART_GET_TX_FULL(uart);
@@ -281,20 +312,26 @@ static int usart_m48x_irq_tx_ready(const struct device *dev)
 
 /*static*/ void usart_m48x_irq_rx_enable(const struct device *dev)
 {
-	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	// /*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	const struct uart_numicro_config *config = dev->config;
+	UART_T* uart = config->uart;
 	UART_ENABLE_INT(uart, (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk));
 }
 
 /*static*/ void usart_m48x_irq_rx_disable(const struct device *dev)
 {
-	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	// /*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	const struct uart_numicro_config *config = dev->config;
+	UART_T* uart = config->uart;
 	UART_DISABLE_INT(uart, (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk));
 }
 
 #ifdef CONFIG_UART_INTERRUPT_DRIVEN
 static int usart_m48x_irq_tx_complete(const struct device *dev)
 {
-	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	// /*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	const struct uart_numicro_config *config = dev->config;
+	UART_T* uart = config->uart;
 	// 0   Tx FIFO is not empty
 	// >=1 Tx FIFO is empty
 	return UART_GET_TX_EMPTY(uart);
@@ -303,7 +340,9 @@ static int usart_m48x_irq_tx_complete(const struct device *dev)
 
 /*static*/ int usart_m48x_irq_rx_ready(const struct device *dev)
 {
-	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	// /*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	const struct uart_numicro_config *config = dev->config;
+	UART_T* uart = config->uart;
 	// 0   Rx FIFO is not empty
 	// >=1 Rx FIFO is empty
 	return (UART_GET_RX_EMPTY(uart) == 0);
@@ -313,7 +352,9 @@ static int usart_m48x_irq_tx_complete(const struct device *dev)
 #ifdef CONFIG_UART_INTERRUPT_DRIVEN
 static void usart_m48x_irq_err_enable(const struct device *dev)
 {
-	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	// /*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	const struct uart_numicro_config *config = dev->config;
+	UART_T* uart = config->uart;
 
 	// TODO: other errrors?
 	UART_ENABLE_INT(uart, (UART_INTEN_RXTOIEN_Msk));
@@ -324,7 +365,9 @@ static void usart_m48x_irq_err_enable(const struct device *dev)
 #ifdef CONFIG_UART_INTERRUPT_DRIVEN
 static void usart_m48x_irq_err_disable(const struct device *dev)
 {
-	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	// /*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	const struct uart_numicro_config *config = dev->config;
+	UART_T* uart = config->uart;
 
 	// TODO: Other errors?
 	UART_DISABLE_INT(uart, (UART_INTEN_RXTOIEN_Msk));
@@ -337,7 +380,9 @@ static void usart_m48x_irq_err_disable(const struct device *dev)
 #ifdef CONFIG_UART_INTERRUPT_DRIVEN
 static int usart_m48x_irq_is_pending(const struct device *dev)
 {
-	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	// /*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	const struct uart_numicro_config *config = dev->config;
+	UART_T* uart = config->uart;
 	uint32_t u32IntSts = uart->INTSTS;
 
 	return (
@@ -352,13 +397,15 @@ static int usart_m48x_irq_is_pending(const struct device *dev)
 
 /*static*/ int usart_m48x_irq_update(const struct device *dev)
 {
+	const struct uart_numicro_config *config = dev->config;
+	UART_T* uart = config->uart;
 	// TODO: Move this to post of usart_m48x_isr after resroting usart_m48x_irq_callback_
 	// ARG_UNUSED(dev);
 	// /*volatile*/ UART_T* uart = UART_STRUCT(dev);
 	//
 	// if(uart->FIFOSTS & (UART_FIFOSTS_BIF_Msk | UART_FIFOSTS_FEF_Msk | UART_FIFOSTS_PEF_Msk | UART_FIFOSTS_RXOVIF_Msk))
     // {
-    //     uart->FIFOSTS = (UART_FIFOSTS_BIF_Msk | UART_FIFOSTS_FEF_Msk | UART_FIFOSTS_PEF_Msk | UART_FIFOSTS_RXOVIF_Msk);
+        uart->FIFOSTS = (UART_FIFOSTS_BIF_Msk | UART_FIFOSTS_FEF_Msk | UART_FIFOSTS_PEF_Msk | UART_FIFOSTS_RXOVIF_Msk);
     // }
 
 	return 1;
@@ -370,7 +417,9 @@ static int usart_m48x_irq_is_pending(const struct device *dev)
 				       void *cb_data)
 {
 //	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
-	struct uart_numicro_data *dev_data = DRV_DATA(dev);
+	const struct uart_numicro_config *config = dev->config;
+	// UART_T* uart = config->uart;
+	struct uart_numicro_data *dev_data = dev->data;
 	LOG_DBG("Set isr callback %p and data %p for %s", cb, cb_data, dev->name);
 
 	dev_data->irq_cb = cb;
@@ -382,8 +431,10 @@ static int usart_m48x_irq_is_pending(const struct device *dev)
 #if 1 //def CONFIG_UART_INTERRUPT_DRIVEN
 static void usart_m48x_isr(const struct device *dev)
 {
-	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
-	struct uart_numicro_data *dev_data = DRV_DATA(dev);
+	// /*volatile*/ UART_T* uart = UART_STRUCT(dev);
+	const struct uart_numicro_config *config = dev->config;
+	UART_T* uart = config->uart;
+	struct uart_numicro_data *dev_data = dev->data;
 
 	if (dev_data->irq_cb) {
 		dev_data->irq_cb(dev, dev_data->irq_cb_data);
@@ -391,7 +442,7 @@ static void usart_m48x_isr(const struct device *dev)
 
 	if(uart->FIFOSTS & (UART_FIFOSTS_BIF_Msk | UART_FIFOSTS_FEF_Msk | UART_FIFOSTS_PEF_Msk | UART_FIFOSTS_RXOVIF_Msk))
     {
-		// PE12 ^= 1;
+		PE12 ^= 1;
         uart->FIFOSTS = (UART_FIFOSTS_BIF_Msk | UART_FIFOSTS_FEF_Msk | UART_FIFOSTS_PEF_Msk | UART_FIFOSTS_RXOVIF_Msk);
     }
 
@@ -504,8 +555,8 @@ static void usart_m48x_isr(const struct device *dev)
 
 static int uart_numicro_init(const struct device *dev)
 {
-	const struct uart_numicro_config *config = DEV_CFG(dev);
-	struct uart_numicro_data *ddata = DRV_DATA(dev);
+	const struct uart_numicro_config *config = dev->config;
+	struct uart_numicro_data *ddata = dev->data;
 
 	FIND_A_BUG();
 
@@ -526,8 +577,10 @@ static int uart_numicro_init(const struct device *dev)
 	// 		  SYS_GPB_MFPH_PB13MFP_UART0_TXD);
 	// LOG_INF("  * Init UART%d", config->idx);
 	SYS_ResetModule(uart_rst(config->idx));
+	// SYS_ResetModule(config->id_rst);
 	SYS_UnlockReg();
 	CLK_EnableModuleClock(uart_module(config->idx));	/* Enable UART module clock */
+	// CLK_EnableModuleClock(config->id_clk);
 
 	/* Connect pins to the peripheral */
 	/* TODO: Make something like this */
@@ -539,7 +592,6 @@ static int uart_numicro_init(const struct device *dev)
 		case 0: // UART0
 			// CLK_SetModuleClock(UART0_MODULE, CLK_CLKSEL1_UART0SEL_PLL, CLK_CLKDIV0_UART0(0));	/* Select UART0 clock source is PLL */
 			CLK_SetModuleClock(UART0_MODULE, CLK_CLKSEL1_UART0SEL_HXT, CLK_CLKDIV0_UART0(1));	/* Select UART clock source from HXT */
-
 			MuxUartPort(0);
 			break;
 		case 1: // UART1
@@ -590,7 +642,7 @@ static int uart_numicro_init(const struct device *dev)
 		config->irq_config_func(dev);
 	#endif
 
-	UART_Open(UART_STRUCT(dev), ddata->ucfg.baudrate);
+	UART_Open(config->uart, ddata->ucfg.baudrate);
 
 	return 0;
 }
@@ -684,12 +736,14 @@ static void usart0_m48x_irq_config_func(const struct device *port)
 	USART_M48X_CONFIG_FUNC(index)											\
 																			\
 	static const struct uart_numicro_config uart_numicro_cfg_##index = {	\
-		.devcfg = {															\
-			.base = (uint8_t *)DT_INST_REG_ADDR(index),						\
-		},																	\
-																			\
+		.base = (uint8_t *)DT_INST_REG_ADDR(index),							\
 		.idx = DT_INST_PROP(index, peripheral_id),							\
-		USART_M48X_IRQ_CFG_FUNC_INIT(index)								\
+																			\
+		.uart = (UART_T *)DT_INST_REG_ADDR(index),							\
+		.id_rst = UART##index##_RST,										\
+		.id_clk = UART##index##_MODULE,										\
+																			\
+		USART_M48X_IRQ_CFG_FUNC_INIT(index)									\
 	};																		\
 																			\
 	static struct uart_numicro_data uart_numicro_data_##index = {			\

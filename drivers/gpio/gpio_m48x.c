@@ -18,6 +18,7 @@
 #include <init.h>
 #include <soc.h>
 #include <drivers/gpio.h>
+#include <zephyr/dt-bindings/gpio/m48x.h>
 
 // #include <drivers/gpio/gpio_utils.h>
 #include "gpio_utils.h"
@@ -72,7 +73,7 @@ static int gpio_m48x_config(const struct device *dev, gpio_pin_t pin, gpio_flags
 		// regs->MODE |= BIT(pin)
 	}
 
-	if (flags & GPIO_INT_DEBOUNCE) {
+	if (flags & M48X_GPIO_INT_DEBOUNCE) {
 		// GPIO_SET_DEBOUNCE_TIME(GPIO_DBCTL_DBCLKSRC_LIRC, GPIO_DBCTL_DBCLKSEL_256);
 		GPIO_SET_DEBOUNCE_TIME(GPIO_DBCTL_DBCLKSRC_LIRC, GPIO_DBCTL_DBCLKSEL_512);
 	    GPIO_ENABLE_DEBOUNCE(regs, BIT(pin));

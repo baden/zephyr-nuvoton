@@ -2,6 +2,9 @@
     Copyright: Batrak Denys (baden.i.ua@gmail.com)
 */
 
+#ifndef ZEPHYR_INCLUDE_DT_BINDINGS_CLOCK_M48X_H_
+#define ZEPHYR_INCLUDE_DT_BINDINGS_CLOCK_M48X_H_
+
 //#include <clk.h>
 
 // UART
@@ -84,3 +87,5 @@
 #define CLK_CLKDIV4_UART5(x)             (((x) - 1UL) << CLK_CLKDIV4_UART5DIV_Pos)  /*!< CLKDIV4 Setting for UART5 clock divider. It could be 1~16 \hideinitializer */
 #define CLK_CLKDIV4_UART6(x)             (((x) - 1UL) << CLK_CLKDIV4_UART6DIV_Pos)  /*!< CLKDIV4 Setting for UART6 clock divider. It could be 1~16 */
 #define CLK_CLKDIV4_UART7(x)             (((x) - 1UL) << CLK_CLKDIV4_UART7DIV_Pos)  /*!< CLKDIV4 Setting for UART7 clock divider. It could be 1~16 */
+
+#endif

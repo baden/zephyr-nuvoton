@@ -17,16 +17,6 @@
 #include <logging/log.h>
 LOG_MODULE_REGISTER(uart_numicro);
 
-// /* Device data structure */
-// #define DEV_CFG(dev)						\
-// 	((const struct uart_numicro_config * const)(dev)->config)
-//
-// #define DRV_DATA(dev)						\
-// 	((struct uart_numicro_data * const)(dev)->data)
-//
-// #define UART_STRUCT(dev)					\
-// 	((UART_T *)(DEV_CFG(dev))->devcfg.base)
-
 struct uart_numicro_config {
 	uint8_t* base;			// TODO: Remove me. For debug only
 	uint32_t idx;			// TODO: Romove me after refactoring.

@@ -5,7 +5,11 @@
 
 add_subdirectory(drivers)
 
+if(CONFIG_LEGACY_INCLUDE_PATH)
+  zephyr_include_directories(include/zephyr)
+endif()
 
+zephyr_include_directories(include)
 # if(EXISTS ${SOC_DIR}/${ARCH}/CMakeLists.txt)
 #   add_subdirectory(${SOC_DIR}/${ARCH} soc/${ARCH})
 # # else()

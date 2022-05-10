@@ -71,3 +71,8 @@ properties:
     tx-gpios:
       type: phandle-array
       required: false
+
+    pinctrl-0:
+      type: phandles
+      required: false
+      description: configurations of pinmux controllers

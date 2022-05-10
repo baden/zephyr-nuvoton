@@ -17,6 +17,8 @@
 #include <logging/log.h>
 LOG_MODULE_REGISTER(uart_numicro);
 
+typedef void (*uart_pinmux_config_func_t)(const struct device *dev);
+
 struct uart_numicro_config {
 	uint8_t* base;			// TODO: Remove me. For debug only
 	uint32_t idx;			// TODO: Romove me after refactoring.
@@ -25,6 +27,13 @@ struct uart_numicro_config {
 	uint32_t id_clk;
 	uint32_t clk_src;
 	uint32_t clk_div;
+
+	// TODO: Bad solution. Use pinmux mechanic!
+	uart_pinmux_config_func_t	pinmux_func;
+	uint32_t* rx_mfp;
+	uint32_t rx_mask;
+	uint32_t rx_bits;
+
 	#if 1 //def CONFIG_UART_INTERRUPT_DRIVEN
 		uart_irq_config_func_t	irq_config_func;
 	#endif
@@ -45,6 +54,7 @@ struct uart_numicro_data {
 	void *irq_cb_data;			/* Interrupt Callback Arg */
 };
 
+/*
 // TODO: Try to make is by #define
 static inline uint32_t uart_rst(const uint32_t periph_id)
 {
@@ -75,6 +85,7 @@ static inline uint32_t uart_module(const uint32_t periph_id)
 	}
 	return UART0_MODULE;
 }
+*/
 
 static int uart_numicro_poll_in(const struct device *dev, unsigned char *c)
 {
@@ -489,6 +500,7 @@ static void usart_m48x_isr(const struct device *dev)
 #define _MFP14	_MFPH
 #define _MFP15	_MFPH
 
+#if 0
 #define _PORT_LETTER(_pid, _port)	\
 	DT_STRING_TOKEN(DT_NODELABEL(NODENAME(_pid)), _port)
 #define _PIN_NUMBER(_pid, _pin)	\
@@ -540,7 +552,7 @@ static void usart_m48x_isr(const struct device *dev)
 	SYS_MFP(_pid, rx_port, rx_pin) &= ~( RX_MASK(_pid) );	\
 	SYS_MFP(_pid, rx_port, rx_pin) |=  ( RX_PIN(_pid)  );
 
-
+#endif
 // _GPDT_N_NODELABEL_uartuart3_P_tx_port_STRING_TOKEN_MFPDT_N_NODELABEL_uartuart3_P_tx_pin_STRING_TOKEN
 
 #define FIND_A_BUG() //{GPIO_SetMode(PE, BIT(12), GPIO_MODE_OUTPUT); PE12 = 0;}
@@ -580,6 +592,7 @@ static int uart_numicro_init(const struct device *dev)
 	// soc_gpio_configure(&cfg->pin_tx);
 	CLK_SetModuleClock(config->id_clk, config->clk_src, config->clk_div);
 
+	#if 0
 	// TODO: Temporrary solution!!!!
 	switch(config->idx) {
 		case 0: // UART0
@@ -628,6 +641,8 @@ static int uart_numicro_init(const struct device *dev)
 		// 	break;
 
 	}
+	#endif
+	config->pinmux_func(dev);
 
 	SYS_LockReg();
 
@@ -748,8 +763,74 @@ __WARN(__STR( CLK-SRC: DT_INST_PROP(index, clk_src) )) \
 __WARN(__STR( CLK-DIV: DT_INST_PROP(index, clk_div) )) \
 */
 
+// Pin MUX
+// SYS->GPB_MFPH
+// AND: SYS_GPB_MFPH_PB12MFP_Msk
+// OR:  SYS_GPB_MFPH_PB12MFP_UART0_RXD
+
+// rx-port
+// rx-pin
+
+#define RX_PORT(idx) DT_STRING_TOKEN(DT_DRV_INST(idx), rx_port)
+#define RX_PIN(idx) DT_STRING_TOKEN(DT_DRV_INST(idx), rx_pin)
+#define TX_PORT(idx) DT_STRING_TOKEN(DT_DRV_INST(idx), tx_port)
+#define TX_PIN(idx) DT_STRING_TOKEN(DT_DRV_INST(idx), tx_pin)
+#define ID(idx) DT_INST_PROP(idx, peripheral_id)
+
+#define SYS2_MFP(port, pin)				\
+	CAT3(										\
+		_GP,									\
+		port,				\
+		_CONCAT(_MFP, pin)	\
+	)
+
+#define RX2_MASK(idx) 	CAT6(									\
+	SYS_GP,														\
+	RX_PORT(idx),												\
+	_CONCAT(_CONCAT(_MFP, RX_PIN(idx)), _P),					\
+	RX_PORT(idx),												\
+	RX_PIN(idx),												\
+	MFP_Msk)
+#define RX2_PIN(idx) 	CAT6(									\
+	SYS_GP,														\
+	RX_PORT(idx),												\
+	_CONCAT(_CONCAT(_MFP, RX_PIN(idx)), _P),					\
+	RX_PORT(idx),												\
+	RX_PIN(idx),												\
+	CAT3(MFP_UART,ID(idx),_RXD))
+#define TX2_MASK(idx) 	CAT6(									\
+	SYS_GP,														\
+	TX_PORT(idx),												\
+	_CONCAT(_CONCAT(_MFP, TX_PIN(idx)), _P),					\
+	TX_PORT(idx),												\
+	TX_PIN(idx),												\
+	MFP_Msk)
+#define TX2_PIN(idx) 	CAT6(									\
+	SYS_GP,														\
+	TX_PORT(idx),												\
+	_CONCAT(_CONCAT(_MFP, TX_PIN(idx)), _P),					\
+	TX_PORT(idx),												\
+	TX_PIN(idx),												\
+	CAT3(MFP_UART,ID(idx),_TXD))
+
+#define USART_M48X_PINMUX_FUNC(n)											\
+	static void usart##n##_m48x_pinmux_config_func(const struct device *port)	\
+	{																		\
+		SYS2_MFP(RX_PORT(n), RX_PIN(n)) &= ~(RX2_MASK(n));	 				\
+		SYS2_MFP(TX_PORT(n), TX_PIN(n)) &= ~(TX2_MASK(n));	 				\
+		SYS2_MFP(RX_PORT(n), RX_PIN(n)) |= RX2_PIN(n);	 					\
+		SYS2_MFP(TX_PORT(n), TX_PIN(n)) |= TX2_PIN(n);	 					\
+	}
+
+
+
+#define GPIO_PORT_PIN_MASK_FROM_NGPIOS(ngpios)			\
+	((gpio_port_pins_t)(((uint64_t)1 << (ngpios)) - 1U))
+
+
 #define NUMICRO_INIT(index)													\
 	USART_M48X_CONFIG_FUNC(index)											\
+	USART_M48X_PINMUX_FUNC(index)											\
 																			\
 	static const struct uart_numicro_config uart_numicro_cfg_##index = {	\
 		.base = (uint8_t *)DT_INST_REG_ADDR(index),							\
@@ -760,7 +841,7 @@ __WARN(__STR( CLK-DIV: DT_INST_PROP(index, clk_div) )) \
 		.id_clk = __MODULE( DT_INST_PROP(index, peripheral_id) ),			\
 		.clk_src = DT_INST_PROP(index, clk_src),							\
 		.clk_div = DT_INST_PROP(index, clk_div),							\
-																			\
+		.pinmux_func = usart##index##_m48x_pinmux_config_func,				\
 		USART_M48X_IRQ_CFG_FUNC_INIT(index)									\
 	};																		\
 																			\

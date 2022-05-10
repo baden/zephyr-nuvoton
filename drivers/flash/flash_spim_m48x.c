@@ -32,7 +32,11 @@ struct flash_spim_dev_config {
 };
 
 struct flash_spim_dev_data {
+
+#if defined(CONFIG_MULTITHREADING)
 	struct k_sem sem;
+#endif
+
 };
 
 static const struct flash_parameters flash_spim_parameters = {
@@ -45,12 +49,16 @@ static const struct flash_parameters flash_spim_parameters = {
 
 static inline void flash_spim_sem_take(const struct device *dev)
 {
+#if defined(CONFIG_MULTITHREADING)
 	k_sem_take(&DEV_DATA(dev)->sem, K_FOREVER);
+#endif
 }
 
 static inline void flash_spim_sem_give(const struct device *dev)
 {
+#if defined(CONFIG_MULTITHREADING)
 	k_sem_give(&DEV_DATA(dev)->sem);
+#endif
 }
 
 
@@ -188,7 +196,13 @@ static const struct flash_parameters *flash_spim_get_parameters(const struct dev
 
 static int flash_spim_init(const struct device *dev)
 {
+
+#if defined(CONFIG_MULTITHREADING)
 	struct flash_spim_dev_data *const dev_data = DEV_DATA(dev);
+
+	k_sem_init(&dev_data->sem, 1, 1);
+#endif
+
 	// LOG_ERR("TODO: flash_spim_init(%p)", dev);
 	// LOG_ERR("FLASH_WRITE_BLK_SZ = %d", FLASH_WRITE_BLK_SZ);
 	// LOG_ERR("FLASH_ERASE_BLK_SZ = %d", FLASH_ERASE_BLK_SZ);
@@ -273,7 +287,6 @@ static int flash_spim_init(const struct device *dev)
 
     SPIM_Enable_4Bytes_Mode(0, 1);
 
-	k_sem_init(&dev_data->sem, 1, 1);
 
 	return 0;
 }

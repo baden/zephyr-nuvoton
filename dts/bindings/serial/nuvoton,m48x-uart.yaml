@@ -16,6 +16,16 @@ properties:
         description: peripheral ID (0..7)
         required: true
 
+    clk-src:
+        type: int
+        description: Clock source. Like CLK_CLKSEL1_UART0SEL_HXT
+        required: true
+
+    clk-div:
+        type: int
+        description: Clock divider. Like CLK_CLKDIV0_UART0_1
+        required: true
+
     tx-port:
       type: string
       required: true

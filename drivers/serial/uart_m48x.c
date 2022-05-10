@@ -33,6 +33,8 @@ struct uart_numicro_config {
 	UART_T* uart;
 	uint32_t id_rst;
 	uint32_t id_clk;
+	uint32_t clk_src;
+	uint32_t clk_div;
 	#if 1 //def CONFIG_UART_INTERRUPT_DRIVEN
 		uart_irq_config_func_t	irq_config_func;
 	#endif
@@ -417,7 +419,7 @@ static int usart_m48x_irq_is_pending(const struct device *dev)
 				       void *cb_data)
 {
 //	/*volatile*/ UART_T* uart = UART_STRUCT(dev);
-	const struct uart_numicro_config *config = dev->config;
+	// const struct uart_numicro_config *config = dev->config;
 	// UART_T* uart = config->uart;
 	struct uart_numicro_data *dev_data = dev->data;
 	LOG_DBG("Set isr callback %p and data %p for %s", cb, cb_data, dev->name);
@@ -576,50 +578,51 @@ static int uart_numicro_init(const struct device *dev)
 	// SYS->GPB_MFPH |= (SYS_GPB_MFPH_PB12MFP_UART0_RXD |
 	// 		  SYS_GPB_MFPH_PB13MFP_UART0_TXD);
 	// LOG_INF("  * Init UART%d", config->idx);
-	SYS_ResetModule(uart_rst(config->idx));
-	// SYS_ResetModule(config->id_rst);
+	// SYS_ResetModule(uart_rst(config->idx));
+	SYS_ResetModule(config->id_rst);
 	SYS_UnlockReg();
-	CLK_EnableModuleClock(uart_module(config->idx));	/* Enable UART module clock */
-	// CLK_EnableModuleClock(config->id_clk);
+	// CLK_EnableModuleClock(uart_module(config->idx));	/* Enable UART module clock */
+	CLK_EnableModuleClock(config->id_clk);
 
 	/* Connect pins to the peripheral */
 	/* TODO: Make something like this */
 	// soc_gpio_configure(&cfg->pin_rx);
 	// soc_gpio_configure(&cfg->pin_tx);
+	CLK_SetModuleClock(config->id_clk, config->clk_src, config->clk_div);
 
 	// TODO: Temporrary solution!!!!
 	switch(config->idx) {
 		case 0: // UART0
-			// CLK_SetModuleClock(UART0_MODULE, CLK_CLKSEL1_UART0SEL_PLL, CLK_CLKDIV0_UART0(0));	/* Select UART0 clock source is PLL */
-			CLK_SetModuleClock(UART0_MODULE, CLK_CLKSEL1_UART0SEL_HXT, CLK_CLKDIV0_UART0(1));	/* Select UART clock source from HXT */
+			// // CLK_SetModuleClock(UART0_MODULE, CLK_CLKSEL1_UART0SEL_PLL, CLK_CLKDIV0_UART0(0));	/* Select UART0 clock source is PLL */
+			// CLK_SetModuleClock(UART0_MODULE, CLK_CLKSEL1_UART0SEL_HXT, CLK_CLKDIV0_UART0(1));	/* Select UART clock source from HXT */
 			MuxUartPort(0);
 			break;
 		case 1: // UART1
-			// CLK_SetModuleClock(UART1_MODULE, CLK_CLKSEL1_UART1SEL_PLL, CLK_CLKDIV0_UART1(0));	// Select UART1 clock source is PLL
-			CLK_SetModuleClock(UART1_MODULE, CLK_CLKSEL1_UART1SEL_HXT, CLK_CLKDIV0_UART1(1));	/* Select UART clock source from HXT */
+			// // CLK_SetModuleClock(UART1_MODULE, CLK_CLKSEL1_UART1SEL_PLL, CLK_CLKDIV0_UART1(0));	// Select UART1 clock source is PLL
+			// CLK_SetModuleClock(UART1_MODULE, CLK_CLKSEL1_UART1SEL_HXT, CLK_CLKDIV0_UART1(1));	/* Select UART clock source from HXT */
 			MuxUartPort(1);
 			break;
 		case 2: // UART2
-			// CLK_SetModuleClock(UART2_MODULE, CLK_CLKSEL3_UART2SEL_PLL, CLK_CLKDIV4_UART2(0));	// Select UART1 clock source is PLL
-			CLK_SetModuleClock(UART2_MODULE, CLK_CLKSEL3_UART2SEL_HXT, CLK_CLKDIV4_UART2(1));	/* Select UART clock source from HXT */
+			// // CLK_SetModuleClock(UART2_MODULE, CLK_CLKSEL3_UART2SEL_PLL, CLK_CLKDIV4_UART2(0));	// Select UART1 clock source is PLL
+			// CLK_SetModuleClock(UART2_MODULE, CLK_CLKSEL3_UART2SEL_HXT, CLK_CLKDIV4_UART2(1));	/* Select UART clock source from HXT */
 			MuxUartPort(2);
 			break;
 		case 3: // UART3
 			// UART3: PC-001
-			// CLK_SetModuleClock(UART3_MODULE, CLK_CLKSEL3_UART3SEL_PLL, CLK_CLKDIV4_UART3(0));	// Select UART3 clock source is PLL
-			CLK_SetModuleClock(UART3_MODULE, CLK_CLKSEL3_UART3SEL_HXT, CLK_CLKDIV4_UART3(1));	/* Select UART clock source from HXT */
+			// // CLK_SetModuleClock(UART3_MODULE, CLK_CLKSEL3_UART3SEL_PLL, CLK_CLKDIV4_UART3(0));	// Select UART3 clock source is PLL
+			// CLK_SetModuleClock(UART3_MODULE, CLK_CLKSEL3_UART3SEL_HXT, CLK_CLKDIV4_UART3(1));	/* Select UART clock source from HXT */
    			MuxUartPort(3);
 			break;
 		case 4: // UART4
 			// UART4: PC-001
-			// CLK_SetModuleClock(UART4_MODULE, CLK_CLKSEL3_UART4SEL_PLL, CLK_CLKDIV4_UART4(0));	// Select UART4 clock source is PLL
-			CLK_SetModuleClock(UART4_MODULE, CLK_CLKSEL3_UART4SEL_HXT, CLK_CLKDIV4_UART4(1));	/* Select UART clock source from HXT */
+			// // CLK_SetModuleClock(UART4_MODULE, CLK_CLKSEL3_UART4SEL_PLL, CLK_CLKDIV4_UART4(0));	// Select UART4 clock source is PLL
+			// CLK_SetModuleClock(UART4_MODULE, CLK_CLKSEL3_UART4SEL_HXT, CLK_CLKDIV4_UART4(1));	/* Select UART clock source from HXT */
 			MuxUartPort(4);
 			break;
 		case 5: // UART5
 			// UART5: PC-001
-			// CLK_SetModuleClock(UART5_MODULE, CLK_CLKSEL3_UART5SEL_PLL, CLK_CLKDIV4_UART5(0));	// Select UART5 clock source is PLL
-			CLK_SetModuleClock(UART5_MODULE, CLK_CLKSEL3_UART5SEL_HXT, CLK_CLKDIV4_UART5(1));	/* Select UART clock source from HXT */
+			// // CLK_SetModuleClock(UART5_MODULE, CLK_CLKSEL3_UART5SEL_PLL, CLK_CLKDIV4_UART5(0));	// Select UART5 clock source is PLL
+			// CLK_SetModuleClock(UART5_MODULE, CLK_CLKSEL3_UART5SEL_HXT, CLK_CLKDIV4_UART5(1));	/* Select UART clock source from HXT */
 			MuxUartPort(5);
 			break;
 
@@ -706,6 +709,7 @@ static void usart0_m48x_irq_config_func(const struct device *port)
 */
 
 
+
 // #define _UART_RST(n) UART#n#_RST
 // #define UART_RST(n) _UART_RST(n)
 
@@ -732,6 +736,28 @@ static void usart0_m48x_irq_config_func(const struct device *port)
 	USART_M48X_DECLARE_CFG(n, USART_M48X_IRQ_CFG_FUNC_INIT)
 #endif
 
+#define __STR1(x) #x
+#define __STR(x) __STR1([ x ])
+
+#define __RST1(id) UART##id##_RST
+#define __RST(id) __RST1(id)
+#define __MODULE1(id) UART##id##_MODULE
+#define __MODULE(id) __MODULE1(id)
+
+/*
+__WARN(__STR( Label: DT_INST_PROP(index, label) )) \
+__WARN(__STR( Index: index )) \
+__WARN(__STR( Id1: DT_INST_PROP(index, peripheral_id) )) \
+__WARN(__STR( Id2: DT_INST_ENUM_IDX(index, peripheral_id) )) \
+__WARN(__STR( DT_INST_REG_ADDR(index) )) \
+__WARN(__STR( RST1: UART##index##_RST )) \
+__WARN(__STR( RST2: __RST( DT_INST_PROP(index, peripheral_id) ) )) \
+__WARN(__STR( MODULE1: UART##index##_MODULE )) \
+__WARN(__STR( MODULE2: __MODULE( DT_INST_PROP(index, peripheral_id) ) )) \
+__WARN(__STR( CLK-SRC: DT_INST_PROP(index, clk_src) )) \
+__WARN(__STR( CLK-DIV: DT_INST_PROP(index, clk_div) )) \
+*/
+
 #define NUMICRO_INIT(index)													\
 	USART_M48X_CONFIG_FUNC(index)											\
 																			\
@@ -740,8 +766,10 @@ static void usart0_m48x_irq_config_func(const struct device *port)
 		.idx = DT_INST_PROP(index, peripheral_id),							\
 																			\
 		.uart = (UART_T *)DT_INST_REG_ADDR(index),							\
-		.id_rst = UART##index##_RST,										\
-		.id_clk = UART##index##_MODULE,										\
+		.id_rst = __RST( DT_INST_PROP(index, peripheral_id) ),				\
+		.id_clk = __MODULE( DT_INST_PROP(index, peripheral_id) ),			\
+		.clk_src = DT_INST_PROP(index, clk_src),							\
+		.clk_div = DT_INST_PROP(index, clk_div),							\
 																			\
 		USART_M48X_IRQ_CFG_FUNC_INIT(index)									\
 	};																		\
@@ -763,5 +791,3 @@ static void usart0_m48x_irq_config_func(const struct device *port)
 //				USART_M48X_INIT_CFG(index);
 
 DT_INST_FOREACH_STATUS_OKAY(NUMICRO_INIT)
-
-//

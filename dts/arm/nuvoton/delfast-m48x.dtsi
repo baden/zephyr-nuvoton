@@ -24,11 +24,13 @@
 
 	sram0: memory@20000000 {
 		compatible = "mmio-sram";
+        reg = <0x20000000 DT_SIZE_K(160)>;
 	};
 
 	flash0: flash@0 {
 		compatible = "serial-flash";
 		label = "FLASH_NUMICRO";
+        reg = <0x0 DT_SIZE_K(512)>;
 		erase-block-size = <4096>;
 		write-block-size = <1>;
 	};
@@ -274,8 +276,6 @@
 
 	};
 };
-
-
 
 &nvic {
 	arm,num-irq-priority-bits = <4>;

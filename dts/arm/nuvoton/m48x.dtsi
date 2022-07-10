@@ -1,9 +1,3 @@
-/*
- * Copyright (c) 2020 Linumiz
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-
 #include <arm/armv7-m.dtsi>
 #include <mem.h>
 #include <dt-bindings/gpio/gpio.h>
@@ -22,19 +16,18 @@
 		};
 	};
 
-	sram0: memory@20000000 {
-		compatible = "mmio-sram";
-        reg = <0x20000000 DT_SIZE_K(160)>;
-	};
-
+	/*
 	flash0: flash@0 {
-		compatible = "serial-flash";
-		label = "FLASH_NUMICRO";
-        reg = <0x0 DT_SIZE_K(512)>;
-		erase-block-size = <4096>;
-		write-block-size = <1>;
-	};
+        compatible = "serial-flash";
+        label = "FLASH_NUMICRO";
+        erase-block-size = <4096>;
+        write-block-size = <1>;
+    };
+	*/
 
+	sram0: memory@20000000 {
+        compatible = "mmio-sram";
+    };
 
 	sysclk: system-clock {
 		compatible = "fixed-clock";
@@ -43,6 +36,28 @@
 	};
 
 	soc {
+		// 0x4000_C000 – 0x4000_CFFF FMC_BA Flash Memory Control Registers
+		// TODO: Rename to 'fmc'
+		flash_controller: flash-controller@4000c000 {
+			compatible = "nuvoton,m48x-flash-controller";
+			reg = <0x4000c000 0x1000>;
+			//partial-erase;
+
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			label="NUVOTON_FLASH_DRV_NAME";
+
+			flash0: flash@0 {
+		        //compatible = "serial-flash";
+				compatible = "soc-nv-flash";
+		        label = "FLASH_NUMICRO";
+		        erase-block-size = <4096>;
+		        write-block-size = <4>;
+		    };
+
+		};
+
         /*
         nvmctrl: nvmctrl@41004000  {
             compatible = "nuvoton,m48x-nvmctrl";

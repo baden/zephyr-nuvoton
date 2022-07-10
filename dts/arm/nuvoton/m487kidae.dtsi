@@ -1,0 +1,23 @@
+/*
+ * Copyright (c) 2020 Linumiz
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#include <nuvoton/m48x.dtsi>
+
+
+&flash0 {
+	reg = <0x00000000 DT_SIZE_K(512)>;
+};
+
+&sram0 {
+    compatible = "mmio-sram";
+    reg = <0x20000000 DT_SIZE_K(160)>;
+};
+
+/ {
+	soc {
+		compatible = "nuvoton,M487KIDAE", "simple-bus";
+	};
+};

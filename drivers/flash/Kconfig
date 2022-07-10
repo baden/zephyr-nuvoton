@@ -1,4 +1,11 @@
 comment "Flash Drivers"
 
+if FLASH
+
+module = FLASH
+module-str = flash
+
 rsource "Kconfig.m48x"
 rsource "Kconfig.spim_m48x"
+
+endif # FLASH

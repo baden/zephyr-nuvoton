@@ -6,5 +6,6 @@ rsource "sensor/Kconfig"
 rsource "serial/Kconfig"
 rsource "pinmux/Kconfig"
 rsource "flash/Kconfig"
+rsource "watchdog/Kconfig"
 #rsource "spi/Kconfig"
 endmenu

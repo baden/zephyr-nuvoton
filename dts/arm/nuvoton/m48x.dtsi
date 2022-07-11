@@ -16,6 +16,10 @@
 		};
 	};
 
+	aliases {
+		watchdog0 = &wdog;
+	};
+
 	/*
 	flash0: flash@0 {
         compatible = "serial-flash";
@@ -268,6 +272,13 @@
                     write-block-size = <256>;
                 };
             };
+
+			wdog: watchdog@40040000 {
+				compatible = "nuvoton,m48x-watchdog";
+				reg = <0x40040000 0x1000>;
+				interrupts = <8 0>;		// WDT_IRQn
+				label = "WATCHDOG_0";
+			};
 
 
         };

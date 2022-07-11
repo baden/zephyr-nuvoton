@@ -1,0 +1,9 @@
+
+if WATCHDOG
+
+module = WDT
+module-str = watchdog
+
+rsource "Kconfig.m48x"
+
+endif

@@ -1,0 +1,10 @@
+# WDT support
+
+config WDT_M48X
+	bool "Nuvoton M48X WDT driver"
+	default y
+	depends on SOC_FAMILY_NUMICRO
+	#select NRFX_WDT0 if HAS_HW_NRF_WDT0
+	#select NRFX_WDT1 if HAS_HW_NRF_WDT1
+	help
+	  Enable support for WDT driver for Nuvoton MCU series.

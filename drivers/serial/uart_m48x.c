@@ -582,6 +582,7 @@ static int uart_numicro_init(const struct device *dev)
 	// LOG_INF("  * Init UART%d", config->idx);
 	// SYS_ResetModule(uart_rst(config->idx));
 	SYS_ResetModule(config->id_rst);
+	unsigned int key = irq_lock();
 	SYS_UnlockReg();
 	// CLK_EnableModuleClock(uart_module(config->idx));	/* Enable UART module clock */
 	CLK_EnableModuleClock(config->id_clk);
@@ -645,6 +646,7 @@ static int uart_numicro_init(const struct device *dev)
 	config->pinmux_func(dev);
 
 	SYS_LockReg();
+	irq_unlock(key);
 
 	#if 1 //def CONFIG_UART_INTERRUPT_DRIVEN
 		config->irq_config_func(dev);

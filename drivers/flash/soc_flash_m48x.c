@@ -186,7 +186,6 @@ static const struct flash_pages_layout dev_layout = {
 
 static void flash_nuvoton_pages_layout(const struct device *dev, const struct flash_pages_layout **layout, size_t *layout_size)
 {
-	LOG_DBG("flash_nuvoton_pages_layout");
 	*layout = &dev_layout;
 	*layout_size = 1;
 }
@@ -213,6 +212,8 @@ static const struct flash_driver_api flash_nuvoton_api = {
 static int nuvoton_flash_init(const struct device *dev)
 {
 	SYNC_INIT();
+
+	LOG_DBG("init. FMC_BASE = 0x%08lX", FMC_BASE);	// Theoreticaly we can use address form DT
 
 	// nrf_flash_sync_init();
 

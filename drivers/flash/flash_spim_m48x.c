@@ -213,6 +213,7 @@ static int flash_spim_init(const struct device *dev)
 
 	uint8_t     idBuf[3];
 
+	unsigned int key = irq_lock();
     SYS_UnlockReg();    /* Unlock protected registers */
 
     CLK_EnableModuleClock(SPIM_MODULE); /* Enable SPIM module clock */
@@ -236,13 +237,14 @@ static int flash_spim_init(const struct device *dev)
 
 
     SYS_LockReg();  /* Lock protected registers */
+	irq_unlock(key);
 
     // LOG_INF("+-------------------------------------------+\n");
     // LOG_INF("|    M480 SPIM DMA mode read/write sample   |\n");
     // LOG_INF("+-------------------------------------------+\n");
 
     // TODO: 192MHZ ONLY!
-    SYS_UnlockReg();                   /* Unlock register lock protect */
+    // SYS_UnlockReg();                   /* Unlock register lock protect */
     SPIM_SET_CLOCK_DIVIDER(2);        /* Set SPIM clock as HCLK divided by 4 */
     SPIM_SET_RXCLKDLY_RDDLYSEL(0);    /* Insert 0 delay cycle. Adjust the sampling clock of received data to latch the correct data. */
     SPIM_SET_RXCLKDLY_RDEDGE();       /* Use SPI input clock rising edge to sample received data. */

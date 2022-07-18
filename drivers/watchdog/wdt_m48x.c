@@ -56,7 +56,7 @@ static int wdt_m48x_feed(const struct device *dev, int channel_id);
 
 static int wdt_m48x_setup(const struct device *dev, uint8_t options)
 {
-	struct wdt_m48x_dev_data *data = dev->data;
+	// struct wdt_m48x_dev_data *data = dev->data;
 
 	LOG_DBG("Watchdog setup [0x%02x]", options);
 
@@ -85,7 +85,6 @@ static int wdt_m48x_install_timeout(const struct device *dev,
 				    const struct wdt_timeout_cfg *cfg)
 {
 	struct wdt_m48x_dev_data *data = dev->data;
-	uint32_t window, per;
 
 	if (cfg->window.min != 0U || cfg->window.max == 0U) {
 		LOG_ERR("Upper limit timeout out of range");
@@ -143,7 +142,7 @@ static int wdt_m48x_install_timeout(const struct device *dev,
 
 static int wdt_m48x_feed(const struct device *dev, int channel_id)
 {
-	struct wdt_m48x_dev_data *data = dev->data;
+	// struct wdt_m48x_dev_data *data = dev->data;
 	LOG_DBG("feed(%d)", channel_id);
 	bool inIsr = k_is_in_isr();
 	if (!inIsr) {

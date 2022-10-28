@@ -14,7 +14,7 @@
 #define DT_DRV_COMPAT nuvoton_m48x_uart
 
 #define LOG_LEVEL CONFIG_GPIO_LOG_LEVEL
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(uart_numicro);
 
 typedef void (*uart_pinmux_config_func_t)(const struct device *dev);

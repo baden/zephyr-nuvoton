@@ -7,8 +7,8 @@
 #ifndef ZEPHYR_INCLUDE_DRIVERS_GPIO_M48X_H_
 #define ZEPHYR_INCLUDE_DRIVERS_GPIO_M48X_H_
 
-#include <device.h>
-#include <drivers/gpio.h>
+#include <zephyr/device.h>
+#include <zephyr/drivers/gpio.h>
 
 /* m48x supports GPIO D0..D6 */
 #define m48x_GPIO_MAX 6

@@ -213,7 +213,7 @@ static int nuvoton_flash_init(const struct device *dev)
 {
 	SYNC_INIT();
 
-	LOG_DBG("init. FMC_BASE = 0x%08lX", FMC_BASE);	// Theoreticaly we can use address form DT
+	// LOG_DBG("init. FMC_BASE = 0x%08lX", FMC_BASE);	// Theoreticaly we can use address form DT
 
 	// nrf_flash_sync_init();
 

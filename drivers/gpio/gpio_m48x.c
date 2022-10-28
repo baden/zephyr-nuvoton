@@ -13,18 +13,18 @@
 #include "gpio_m48x.h"
 
 #include <errno.h>
-#include <kernel.h>
-#include <device.h>
-#include <init.h>
+#include <zephyr/kernel.h>
+#include <zephyr/device.h>
+#include <zephyr/init.h>
 #include <soc.h>
-#include <drivers/gpio.h>
+#include <zephyr/drivers/gpio.h>
 #include <zephyr/dt-bindings/gpio/m48x.h>
 
 // #include <drivers/gpio/gpio_utils.h>
 #include "gpio_utils.h"
 
 // #define LOG_LEVEL  LOG_LEVEL_DBG	//CONFIG_GPIO_LOG_LEVEL
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 // LOG_MODULE_REGISTER(gpio_m48x, LOG_LEVEL_DBG);	//CONFIG_GPIO_LOG_LEVEL
 LOG_MODULE_REGISTER(gpio_m48x, LOG_LEVEL_INF);	//CONFIG_GPIO_LOG_LEVEL
 

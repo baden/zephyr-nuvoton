@@ -14,15 +14,15 @@
 #define FLASH_ERASE_BLK_SZ DT_PROP(SOC_NV_FLASH_NODE, erase_block_size)
 
 
-#include <kernel.h>
-#include <device.h>
+#include <zephyr/kernel.h>
+#include <zephyr/device.h>
 #include <stddef.h>
 #include <string.h>
 #include <errno.h>
-#include <drivers/flash.h>
+#include <zephyr/drivers/flash.h>
 #include <soc.h>
 
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(flash_spim, CONFIG_FLASH_LOG_LEVEL);
 
 
@@ -259,7 +259,7 @@ static int flash_spim_init(const struct device *dev)
 
     SPIM_ReadJedecId(idBuf, sizeof (idBuf), 1);
     // SPIM get JEDEC ID=0xEF, 0x70, 0x18
-    LOG_INF("SPIM get JEDEC ID=0x%02X, 0x%02X, 0x%02X", idBuf[0], idBuf[1], idBuf[2]);
+    // LOG_INF("SPIM get JEDEC ID=0x%02X, 0x%02X, 0x%02X", idBuf[0], idBuf[1], idBuf[2]);
     switch(idBuf[0]) {
         case MFGID_WINBOND:
             LOG_INF( "Manufacturer: WINBOND"

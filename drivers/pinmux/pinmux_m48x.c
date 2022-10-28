@@ -1,11 +1,11 @@
-#include <drivers/pinmux.h>
+#include <zephyr/drivers/pinmux.h>
 #include <soc.h>
 
 // Not realy needed
 #define DT_DRV_COMPAT nuvoton_m48x_pinmux
 
 // TODO: Remove after finished
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(pinmux_m48x_pinmux, LOG_LEVEL_DBG);
 
 // TODO:

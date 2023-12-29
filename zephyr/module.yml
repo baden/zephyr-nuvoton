@@ -1,7 +1,7 @@
 build:
   cmake: .
   kconfig: Kconfig
-  depends:
-   - hal_nuvoton
+  #depends:
+  # - hal_nuvoton
   settings:
     dts_root: .

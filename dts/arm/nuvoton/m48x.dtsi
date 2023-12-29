@@ -23,7 +23,6 @@
 	/*
 	flash0: flash@0 {
         compatible = "serial-flash";
-        label = "FLASH_NUMICRO";
         erase-block-size = <4096>;
         write-block-size = <1>;
     };
@@ -50,12 +49,9 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 
-			label="NUVOTON_FLASH_DRV_NAME";
-
 			flash0: flash@0 {
 		        //compatible = "serial-flash";
 				compatible = "soc-nv-flash";
-		        label = "FLASH_NUMICRO";
 		        erase-block-size = <4096>;
 		        write-block-size = <4>;
 		    };
@@ -65,7 +61,6 @@
         /*
         nvmctrl: nvmctrl@41004000  {
             compatible = "nuvoton,m48x-nvmctrl";
-            label = "FLASH_CTRL";
             reg = <0x41004000 0x22>;
             interrupts = <5 0>;
             lock-regions = <16>;
@@ -76,7 +71,6 @@
             flash0: flash@0 {
                 //compatible = "soc-nv-flash";
                 compatible = "serial-flash";
-                label = "FLASH_0";
                 reg = <0 0x40000>;
                 write-block-size = <4>;
             };
@@ -90,7 +84,6 @@
             clk-src = <CLK_CLKSEL1_UART0SEL_HXT>;
             clk-div = <CLK_CLKDIV0_UART0(1)>;
 			status = "disabled";
-			label = "UART_0";
             interrupts = <36 0>; // UART0_IRQn
 		};
 
@@ -101,7 +94,6 @@
             clk-src = <CLK_CLKSEL1_UART1SEL_HXT>;
             clk-div = <CLK_CLKDIV0_UART1(1)>;
 			status = "disabled";
-			label = "UART_1";
             interrupts = <37 0>; // UART1_IRQn
 		};
 
@@ -112,7 +104,6 @@
             clk-src = <CLK_CLKSEL3_UART2SEL_HXT>;
             clk-div = <CLK_CLKDIV4_UART2(1)>;
 			status = "disabled";
-			label = "UART_2";
             interrupts = <48 0>; // UART2_IRQn
 		};
 
@@ -123,7 +114,6 @@
             clk-src = <CLK_CLKSEL3_UART3SEL_HXT>;
             clk-div = <CLK_CLKDIV4_UART3(1)>;
 			status = "disabled";
-			label = "UART_3";
             interrupts = <49 0>; // UART3_IRQn
 		};
 
@@ -134,7 +124,6 @@
             clk-src = <CLK_CLKSEL3_UART4SEL_HXT>;
             clk-div = <CLK_CLKDIV4_UART4(1)>;
 			status = "disabled";
-			label = "UART_4";
             interrupts = <74 0>; // UART4_IRQn
 		};
 
@@ -145,7 +134,6 @@
             clk-src = <CLK_CLKSEL3_UART5SEL_HXT>;
             clk-div = <CLK_CLKDIV4_UART5(1)>;
 			status = "disabled";
-			label = "UART_5";
             interrupts = <75 0>; // UART5_IRQn
 		};
 
@@ -156,7 +144,6 @@
             clk-src = <CLK_CLKSEL3_UART6SEL_HXT>;
             clk-div = <CLK_CLKDIV4_UART6(1)>;
 			status = "disabled";
-			label = "UART_6";
 		};
 
 		uart7: serial@40077000 {
@@ -166,7 +153,6 @@
             clk-src = <CLK_CLKSEL3_UART7SEL_HXT>;
             clk-div = <CLK_CLKDIV4_UART7(1)>;
 			status = "disabled";
-			label = "UART_7";
 		};
 
         pinctrl@40004000 {
@@ -178,7 +164,6 @@
             porta: gpio@40004000 {
                 compatible = "nuvoton,m48x-gpio";
                 reg = <0x40004000 0x40>;
-                label = "PORTA";
                 gpio-controller;
                 #gpio-cells = <2>;
                 #nuvoton,pin-cells = <2>;
@@ -186,7 +171,6 @@
             portb: gpio@40004040 {
                 compatible = "nuvoton,m48x-gpio";
                 reg = <0x40004040 0x40>;
-                label = "PORTB";
                 gpio-controller;
                 #gpio-cells = <2>;
                 #nuvoton,pin-cells = <2>;
@@ -194,7 +178,6 @@
             portc: gpio@40004080 {
                 compatible = "nuvoton,m48x-gpio";
                 reg = <0x40004080 0x40>;
-                label = "PORTC";
                 gpio-controller;
                 #gpio-cells = <2>;
                 #nuvoton,pin-cells = <2>;
@@ -202,7 +185,6 @@
             portd: gpio@400040C0 {
                 compatible = "nuvoton,m48x-gpio";
                 reg = <0x400040C0 0x40>;
-                label = "PORTD";
                 gpio-controller;
                 #gpio-cells = <2>;
                 #nuvoton,pin-cells = <2>;
@@ -210,7 +192,6 @@
             porte: gpio@40004100 {
                 compatible = "nuvoton,m48x-gpio";
                 reg = <0x40004100 0x40>;
-                label = "PORTE";
                 gpio-controller;
                 #gpio-cells = <2>;
                 #nuvoton,pin-cells = <2>;
@@ -218,7 +199,6 @@
             portf: gpio@40004140 {
                 compatible = "nuvoton,m48x-gpio";
                 reg = <0x40004140 0x40>;
-                label = "PORTF";
                 gpio-controller;
                 #gpio-cells = <2>;
                 #nuvoton,pin-cells = <2>;
@@ -226,7 +206,6 @@
             portg: gpio@40004180 {
                 compatible = "nuvoton,m48x-gpio";
                 reg = <0x40004180 0x40>;
-                label = "PORTG";
                 gpio-controller;
                 #gpio-cells = <2>;
                 #nuvoton,pin-cells = <2>;
@@ -234,7 +213,6 @@
             porth: gpio@400041C0 {
                 compatible = "nuvoton,m48x-gpio";
                 reg = <0x400041C0 0x40>;
-                label = "PORTH";
                 gpio-controller;
                 #gpio-cells = <2>;
                 #nuvoton,pin-cells = <2>;
@@ -249,14 +227,12 @@
         		#size-cells = <0>;
         		reg = <0x40020000 0x2000>;
         		//clocks = <&pcc NPCX_CLOCK_BUS_APB3 NPCX_PWDWN_CTL1 2>;
-        		label = "SPI_FIU";
         	};
             */
 
 
             spim_flash: flash-controller@40000000 {
                 compatible = "nuvoton,m48x-spim-flash-controller";
-                label = "SPIM_FLASH_CTRL";
                 reg = <0x40000000 0x1000>;
                 /* interrupts = <3 0>; */
 
@@ -266,7 +242,6 @@
                 spim_flash0: spim_flash@0 {
                     //compatible = "soc-nv-flash";// Not sure is a soc-nv-flash
                     compatible = "serial-flash";// Not sure is a soc-nv-flash
-                    label = "FLASH_SPIM";
                     reg = <0 0x400000>;
                     erase-block-size = <4096>;
                     write-block-size = <256>;
@@ -277,7 +252,6 @@
 				compatible = "nuvoton,m48x-watchdog";
 				reg = <0x40040000 0x1000>;
 				interrupts = <8 0>;		// WDT_IRQn
-				label = "WATCHDOG_0";
 			};
 
 
@@ -293,7 +267,6 @@
         spim: spim@40007000 {
     		compatible = "nuvoton,m48x-spim";
             reg = <0x40007000 0x1000>;
-    		label = "SPIM_M48x";
     		// erase-block-size = <4096>;
     		// write-block-size = <1>;
     	};

@@ -1,6 +1,6 @@
 #include <arm/armv7-m.dtsi>
 #include <mem.h>
-#include <dt-bindings/gpio/gpio.h>
+#include <zephyr/dt-bindings/gpio/gpio.h>
 #include <zephyr/dt-bindings/clock/m48x.h>
 #include <arm/nuvoton/m48x_crypt.dtsi>
 
@@ -155,7 +155,15 @@
 			status = "disabled";
 		};
 
-        pinctrl@40004000 {
+		// pinctrl: pinctrl@40000030 {
+		// 	compatible = "nuvoton,numicro-pinctrl";
+		// 	reg = <0x40000030 0x40
+		// 	       0x40000080 0x20>;
+		// 	reg-names = "mfp", "mfos";
+		// 	status = "okay";
+		// };        
+
+        pinctrl: pinctrl@40004000 {
             compatible = "nuvoton,m48x-pinctrl";
             #address-cells = <1>;
 			#size-cells = <1>;

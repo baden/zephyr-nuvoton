@@ -1,0 +1,17 @@
+#include <nuvoton/m2354.dtsi>
+
+
+&flash0 {
+	reg = <0x00000000 DT_SIZE_K(1024)>;
+};
+
+&sram0 {
+    compatible = "mmio-sram";
+    reg = <0x20000000 DT_SIZE_K(256)>;
+};
+
+/ {
+	soc {
+		compatible = "nuvoton,M487KIDAE", "simple-bus";
+	};
+};
